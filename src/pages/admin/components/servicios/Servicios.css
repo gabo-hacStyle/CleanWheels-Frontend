@@ -1,14 +1,14 @@
 .servicios_tabla {
   width: 100% !important;
   border-collapse: collapse !important;
-  background-color: white !important;
+  background-color: var(--bg-card) !important;
   border-radius: 12px !important;
   overflow: hidden !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  box-shadow: var(--shadow) !important;
 }
 
 .servicios_tabla thead {
-  background-color: #1C1C1C !important;
+  background-color: var(--bg-table-head) !important;
   color: white !important;
 }
 
@@ -22,8 +22,8 @@
 .servicios_tabla td {
   padding: 14px 16px !important;
   font-size: 14px !important;
-  color: #374151 !important;
-  border-bottom: 1px solid #f3f4f6 !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
 .btn_editar {
@@ -61,19 +61,20 @@
   border-radius: 20px !important;
   font-size: 12px !important;
 }
+
 .servicios_formulario {
-  background-color: white !important;
+  background-color: var(--bg-card) !important;
   border-radius: 12px !important;
   padding: 25px !important;
   margin-bottom: 25px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  box-shadow: var(--shadow) !important;
   border-top: 3px solid #00E5FF !important;
 }
 
 .servicios_formulario h2 {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #111827 !important;
+  color: var(--text-primary) !important;
   margin: 0 0 20px !important;
 }
 
@@ -86,10 +87,12 @@
 
 .formulario_grid input {
   padding: 10px 14px !important;
-  border: 1px solid #d1d5db !important;
+  border: 1px solid var(--border-input) !important;
   border-radius: 8px !important;
   font-size: 14px !important;
   outline: none !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 .formulario_botones {
@@ -109,10 +112,10 @@
 
 .btn_cancelar {
   padding: 10px 24px !important;
-  background-color: white !important;
-  color: #111827 !important;
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
   font-weight: 600 !important;
-  border: 1px solid #d1d5db !important;
+  border: 1px solid var(--border-input) !important;
   border-radius: 8px !important;
   cursor: pointer !important;
 }
@@ -135,4 +138,143 @@ div.servicios_header {
   border-radius: 8px !important;
   cursor: pointer !important;
   font-size: 14px !important;
+}
+.servicios_header_btns {
+  display: flex !important;
+  gap: 10px !important;
+}
+
+.btn_categorias {
+  padding: 10px 24px !important;
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--border-input) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.btn_desactivar {
+  padding: 6px 14px !important;
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+
+.formulario_select {
+  padding: 10px 14px !important;
+  border: 1px solid var(--border-input) !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.modal_overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+}
+
+.modal_contenido {
+  background: var(--bg-card) !important;
+  border-radius: 12px !important;
+  padding: 28px !important;
+  width: 90% !important;
+  max-width: 700px !important;
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+}
+
+.modal_header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+}
+
+.modal_header h2 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+}
+
+.modal_cerrar {
+  background: none !important;
+  border: none !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  color: var(--text-secondary) !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+}
+
+.modal_cerrar:hover {
+  background: var(--bg-nav-hover) !important;
+}
+
+.modal_formulario {
+  display: flex !important;
+  gap: 10px !important;
+  margin-bottom: 20px !important;
+  flex-wrap: wrap !important;
+}
+
+.modal_formulario input {
+  flex: 1 !important;
+  min-width: 150px !important;
+  padding: 10px 14px !important;
+  border: 1px solid var(--border-input) !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.acciones {
+  display: flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.btn_icono {
+  width: 32px !important;
+  height: 32px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.15s ease, opacity 0.15s ease !important;
+}
+
+.btn_icono:hover {
+  transform: scale(1.15) !important;
+  opacity: 0.85 !important;
+}
+
+.btn_icono_editar {
+  background-color: #e0f7fa !important;
+}
+
+.btn_icono_eliminar {
+  background-color: #fee2e2 !important;
+}
+
+.btn_icono_desactivar {
+  background-color: #fef3c7 !important;
 }

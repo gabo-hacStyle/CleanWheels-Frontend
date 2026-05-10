@@ -2,15 +2,16 @@
 .reservas-container {
   max-width: 900px;
 }
+
 .reportes {
-  background-color: #FFFFFF;
+  background-color: var(--bg-primary);
   min-height: 100vh;
 }
 
 .reportes_titulo {
   font-size: 28px;
   font-weight: bold;
-  color: #1C1C1C;
+  color: var(--text-primary);
   margin-bottom: 25px;
 }
 
@@ -23,9 +24,9 @@
 .filtro_btn {
   padding: 8px 20px;
   border-radius: 6px;
-  border: 1px solid #687A7D;
-  background-color: white;
-  color: #1C1C1C;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -49,23 +50,23 @@
 }
 
 .reporte_card {
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: 10px;
   padding: 20px;
   width: 220px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow);
 }
 
 .card_label {
   font-size: 13px;
-  color: #687A7D;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .card_valor {
   font-size: 22px;
   font-weight: bold;
-  color: #1C1C1C;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
@@ -82,14 +83,14 @@
 }
 
 .reportes_grafica {
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: 10px;
   padding: 25px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow);
 }
 
 .grafica_titulo {
   font-size: 14px;
-  color: #687A7D;
+  color: var(--text-secondary);
   margin-bottom: 15px;
 }

@@ -1,4 +1,6 @@
 import "./Sidebar.css";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const CalendarIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -43,6 +45,17 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ activePage, onNavigate, onLogout }) {
+  const [usuario, setUsuario] = useState(null);
+  
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      fetch("http://localhost:8080/api/auth/me", {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => setUsuario(data))
+        .catch(err => console.error(err));
+    }, []);
   return (
     <aside className="sidebar">
 
@@ -53,7 +66,7 @@ export default function Sidebar({ activePage, onNavigate, onLogout }) {
         </div>
         <div className="sidebar-user-info">
           <p className="sidebar-user-name">User Portal</p>
-          <p className="sidebar-user-sub">Username</p>
+          <p className="sidebar-user-sub">{usuario?.email ?? "Usuario"}</p>
         </div>
       </div>
 
@@ -75,7 +88,7 @@ export default function Sidebar({ activePage, onNavigate, onLogout }) {
 
       {/* Log out */}
       <div className="sidebar-footer">
-        <button className="sidebar-logout" onClick={onLogout}>
+       <button className="sidebar-logout" onClick={onLogout}>
           <span className="sidebar-nav-icon">
             <LogoutIcon />
           </span>
