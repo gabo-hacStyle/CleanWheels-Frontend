@@ -1,0 +1,311 @@
+/* ── Backdrop ── */
+.mfr-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+
+/* ── Box ── */
+.mfr-box {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: mfr-in 0.2s ease;
+}
+
+@keyframes mfr-in {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* ── Header ── */
+.mfr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 3px solid #00E5FF;
+  flex-shrink: 0;
+}
+
+.mfr-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mfr-back {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0891b2;
+  cursor: pointer;
+  text-align: left;
+  width: fit-content;
+}
+
+.mfr-back:hover { text-decoration: underline; }
+
+.mfr-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: 0.02em;
+}
+
+.mfr-close {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mfr-close:hover { background: #f3f4f6; color: #111827; }
+
+/* ── Body ── */
+.mfr-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mfr-section { display: flex; flex-direction: column; gap: 8px; }
+
+.mfr-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1C1C1C;
+  margin: 0;
+}
+
+/* ── Tabla de servicios ── */
+.mfr-servicios-tabla {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mfr-servicio-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mfr-servicio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mfr-servicio-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.mfr-servicio-duracion {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.mfr-servicio-precio {
+  font-size: 13px;
+  font-weight: 600;
+  color: #059669;
+}
+
+.mfr-servicios-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f9fafb;
+}
+
+.mfr-total-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mfr-total-left span:first-child {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.mfr-total-duracion {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.mfr-total-precio {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* ── Select vehículo ── */
+.mfr-select {
+  padding: 10px 36px 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.mfr-select:focus { border-color: #00E5FF; }
+
+/* ── Navegación semana ── */
+.mfr-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mfr-nav-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.mfr-nav-btn:hover:not(:disabled) { background: #f3f4f6; }
+.mfr-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Grid días ── */
+.mfr-dias-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.mfr-dia-btn {
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.mfr-dia-btn:hover:not(.dis) { border-color: #00E5FF; }
+
+.mfr-dia-btn.sel {
+  border: 2px solid #00E5FF;
+  background: #f0feff;
+  color: #0891b2;
+}
+
+.mfr-dia-btn.dis {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+/* ── Grid horas ── */
+.mfr-horas-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.mfr-hora-btn {
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mfr-hora-btn:hover:not(.dis) { border-color: #00E5FF; }
+
+.mfr-hora-btn.sel {
+  border: 2px solid #00E5FF;
+  background: #f0feff;
+  color: #0891b2;
+}
+
+.mfr-hora-btn.dis {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: #f9fafb;
+  text-decoration: line-through;
+}
+
+/* ── Mensajes ── */
+.mfr-hint  { font-size: 12px; color: #9ca3af; margin: 0; }
+.mfr-error { font-size: 12px; color: #991b1b; margin: 0; background: #fee2e2; padding: 8px 12px; border-radius: 6px; }
+
+/* ── Footer ── */
+.mfr-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.mfr-btn-confirmar {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mfr-btn-confirmar.enabled       { background: #00E5FF; color: #111827; }
+.mfr-btn-confirmar.enabled:hover { background: #00c8e0; }
+.mfr-btn-confirmar.disabled      { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }

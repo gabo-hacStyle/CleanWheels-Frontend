@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./Reservas.css";
 import ModalServicios from "../servicios/ModalServicios";
+import ModalFormReserva from "../formreserva/ModalFormReserva";
 
 const TIME_SLOTS = [
   "8:00 AM - 9:00 AM",
@@ -64,19 +65,21 @@ const CalendarIcon = () => (
 );
 
 export default function Reservas() {
-  const [weekStart, setWeekStart]       = useState(() => getStartOfWeek(new Date()));
-  const [showModal, setShowModal]       = useState(false);
-  const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+  const [weekStart, setWeekStart] = useState(() => getStartOfWeek(new Date()));
+  const [modal, setModal]         = useState(null); // null | "servicios" | "reserva"
+  const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
 
   const days   = Array.from({ length: 5 }, (_, i) => addDays(weekStart, i));
   const weekEnd = addDays(weekStart, 4);
 
-  // Cuando el usuario elige un servicio y presiona "Agendar" en el modal
-  const handleAgendarServicio = (servicio) => {
-    setServicioSeleccionado(servicio);
-    setShowModal(false);
-    // TODO: abrir aquí el modal de crear reservación pasándole `servicio`
-    console.log("Servicio seleccionado:", servicio);
+  const handleAgendar = (selArray) => {
+    setServiciosSeleccionados(selArray);
+    setModal("reserva");
+  };
+
+  const handleCerrarTodo = () => {
+    setModal(null);
+    setServiciosSeleccionados([]);
   };
 
   return (
@@ -84,27 +87,24 @@ export default function Reservas() {
       <h1 className="reservas-title">Reservaciones</h1>
       <p className="reservas-subtitle">Maneja las reservas</p>
 
-      {/* Controls */}
       <div className="reservas-controls">
         <div className="reservas-daterange">
           <CalendarIcon />
           <span>{formatDateRange(weekStart, weekEnd)}</span>
         </div>
-        <button className="btn-agendar" onClick={() => setShowModal(true)}>
+        <button className="btn-agendar" onClick={() => setModal("servicios")}>
           Agendar
         </button>
       </div>
 
-      {/* Grid */}
+      {/* Grid — sin cambios */}
       <div className="reservas-grid-wrapper">
         <button className="arrow-btn" onClick={() => setWeekStart(d => addDays(d, -7))}>‹</button>
-
         <div className="reservas-grid">
           <div className="cell header-cell time-col">Hora | Día</div>
           {days.map((d, i) => (
             <div key={i} className="cell header-cell day-col">{d.getDate()}</div>
           ))}
-
           {TIME_SLOTS.map((slot) => {
             const isBreak = slot === "12:00 AM - 2:00 AM";
             return (
@@ -112,21 +112,14 @@ export default function Reservas() {
                 <div className={`cell time-cell${isBreak ? " break-time" : ""}`}>{slot}</div>
                 {days.map((_, col) => {
                   if (isBreak) return <div key={col} className="cell break-slot" />;
-
                   const available = MOCK_DATA[slot]?.[col];
                   const cupos     = MOCK_CUPOS[slot]?.[col] ?? 0;
-
                   if (available === null || available === undefined)
                     return <div key={col} className="cell slot empty" />;
-
                   return (
                     <div key={col} className={`cell slot ${available ? "available" : "unavailable"}`}>
-                      <span className="slot-title">
-                        {available ? "Disponible" : "No Disponible"}
-                      </span>
-                      <span className="slot-cupos">
-                        {available ? `Cupos : ${cupos}` : "Cupos Llenos"}
-                      </span>
+                      <span className="slot-title">{available ? "Disponible" : "No Disponible"}</span>
+                      <span className="slot-cupos">{available ? `Cupos : ${cupos}` : "Cupos Llenos"}</span>
                     </div>
                   );
                 })}
@@ -134,15 +127,25 @@ export default function Reservas() {
             );
           })}
         </div>
-
         <button className="arrow-btn" onClick={() => setWeekStart(d => addDays(d, 7))}>›</button>
       </div>
 
-      {/* Modal servicios */}
-      {showModal && (
+      {modal === "servicios" && (
         <ModalServicios
-          onClose={() => setShowModal(false)}
-          onAgendar={handleAgendarServicio}
+          onClose={handleCerrarTodo}
+          onAgendar={handleAgendar}
+        />
+      )}
+
+      {modal === "reserva" && (
+        <ModalFormReserva
+          servicios={serviciosSeleccionados}
+          onClose={handleCerrarTodo}
+          onVolver={() => setModal("servicios")}
+          onConfirmada={(reserva) => {
+            handleCerrarTodo();
+            console.log("Reserva creada:", reserva);
+          }}
         />
       )}
     </div>

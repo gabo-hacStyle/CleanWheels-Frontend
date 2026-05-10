@@ -1,69 +1,8 @@
 import { useState, useEffect } from "react";
 import "./ModalServicios.css";
 
-// ── Mock — reemplazar con fetch a GET /services/ ─────────────
-const MOCK_SERVICES = [
-  {
-    id: 1,
-    name: "Lavado básico",
-    price: "30000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duración estimada: 1 hora.",
-    duration: 60,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios",
-  },
-  {
-    id: 2,
-    name: "Lavado completo",
-    price: "55000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Incluye interior y exterior.",
-    duration: 90,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios",
-  },
-  {
-    id: 3,
-    name: "Lavado premium",
-    price: "80000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cera y tratamiento especial.",
-    duration: 120,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios",
-  },
-  {
-    id: 4,
-    name: "Pulida",
-    price: "120000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pulida completa de carrocería.",
-    duration: 180,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios 2",
-  },
-  {
-    id: 5,
-    name: "Encerado",
-    price: "90000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Protección de pintura.",
-    duration: 120,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios 2",
-  },
-  {
-    id: 6,
-    name: "Detailing",
-    price: "200000.00",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Servicio completo de detailing.",
-    duration: 240,
-    is_active: true,
-    created_at: null,
-    category: "Categoria servicios 2",
-  },
-];
+// Categorías que permiten selección múltiple — ajusta según tu backend
+const CATEGORIAS_MULTIPLES = new Set(["Lavado Interior"]);
 
 function formatPrice(price) {
   return new Intl.NumberFormat("es-CO", {
@@ -74,89 +13,130 @@ function formatPrice(price) {
 }
 
 export default function ModalServicios({ onClose, onAgendar }) {
-  const [services, setServices]   = useState([]);
+  const [servicios, setServicios] = useState([]);
   const [loading, setLoading]     = useState(true);
-  const [selected, setSelected]   = useState(null);
+  const [error, setError]         = useState(null);
+  const [seleccionados, setSeleccionados] = useState({});
 
   useEffect(() => {
-    // TODO: reemplazar con fetch real:
-    // fetch(`${import.meta.env.VITE_API_URL}/services/`)
-    //   .then(r => r.json())
-    //   .then(json => setServices(json.data))
-    //   .finally(() => setLoading(false));
+    const token = localStorage.getItem("token");
 
-    const timer = setTimeout(() => {
-      setServices(MOCK_SERVICES);
-      setLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
+    fetch("http://localhost:8080/api/booking/services/", {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(`Error ${r.status}`);
+        return r.json();
+      })
+      .then(json => {
+        if (!json.success) throw new Error("Respuesta no exitosa");
+        setServicios(json.data.filter(s => s.is_active !== false));
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
-  // Agrupar por categoría
-  const categories = services.reduce((acc, svc) => {
-    const cat = svc.category || "Servicios";
+  // Agrupar dinámicamente por category_name
+  const categorias = servicios.reduce((acc, svc) => {
+    const cat = svc.category_name || "Otros";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(svc);
     return acc;
   }, {});
 
-  const handleSelect = (svc) => {
-    setSelected(prev => prev?.id === svc.id ? null : svc);
+  const toggleServicio = (svc) => {
+    const esMultiple = CATEGORIAS_MULTIPLES.has(svc.category_name);
+
+    setSeleccionados(prev => {
+      const next = { ...prev };
+
+      if (next[svc.id]) {
+        delete next[svc.id];
+      } else {
+        if (!esMultiple) {
+          // quitar el seleccionado de la misma categoría
+          servicios
+            .filter(s => s.category_name === svc.category_name)
+            .forEach(s => delete next[s.id]);
+        }
+        next[svc.id] = svc;
+      }
+
+      return next;
+    });
   };
 
-  const handleAgendar = () => {
-    if (!selected) return;
-    onAgendar(selected); // pasa el servicio seleccionado al padre
-  };
-
-  // Cerrar al hacer click en backdrop
   const handleBackdrop = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  const selArray = Object.values(seleccionados);
+  const total    = selArray.reduce((acc, s) => acc + parseFloat(s.price), 0);
+  const duracion = selArray.reduce((acc, s) => acc + s.duration, 0);
 
   return (
     <div className="modal-backdrop" onClick={handleBackdrop}>
       <div className="modal-box">
 
-        {/* Header */}
         <div className="modal-header">
           <h2 className="modal-title">AGENDAR SERVICIOS</h2>
           <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
 
-        {/* Body */}
         <div className="modal-body">
-          {loading ? (
-            <div className="modal-loading">Cargando servicios...</div>
-          ) : (
-            Object.entries(categories).map(([cat, items]) => (
-              <div key={cat} className="modal-category">
-                <h3 className="modal-category-title">{cat}</h3>
+          {loading && <p className="modal-loading">Cargando servicios...</p>}
+          {error   && <p className="modal-loading">Error: {error}</p>}
+
+          {!loading && !error && Object.entries(categorias).map(([catName, items]) => {
+            const esMultiple          = CATEGORIAS_MULTIPLES.has(catName);
+            const haySeleccionadaEnCat = items.some(s => seleccionados[s.id]);
+
+            return (
+              <div key={catName} className="modal-category">
+                <h3 className="modal-category-title">
+                  {catName}
+                  {esMultiple && <span className="badge-multiple">Selección múltiple</span>}
+                </h3>
                 <div className="modal-services-grid">
-                  {items.map(svc => (
-                    <div
-                      key={svc.id}
-                      className={`service-card ${selected?.id === svc.id ? "selected" : ""}`}
-                      onClick={() => handleSelect(svc)}
-                    >
-                      <p className="service-card-name">{svc.name}</p>
-                      <p className="service-card-desc">{svc.description}</p>
-                      <p className="service-card-price">{formatPrice(svc.price)}</p>
-                      <p className="service-card-duration">Duración: {svc.duration} min</p>
-                    </div>
-                  ))}
+                  {items.map(svc => {
+                    const estaSeleccionado = !!seleccionados[svc.id];
+                    const deshabilitado    = !esMultiple && haySeleccionadaEnCat && !estaSeleccionado;
+
+                    return (
+                      <div
+                        key={svc.id}
+                        className={`service-card ${estaSeleccionado ? "selected" : ""} ${deshabilitado ? "disabled-card" : ""}`}
+                        onClick={() => toggleServicio(svc)}
+                      >
+                        <p className="service-card-name">{svc.name}</p>
+                        <p className="service-card-desc">{svc.description}</p>
+                        <p className="service-card-price">{formatPrice(svc.price)}</p>
+                        <p className="service-card-duration">{svc.duration} min</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
 
-        {/* Footer */}
         <div className="modal-footer">
+          {selArray.length > 0 && (
+            <div className="modal-resumen">
+              {selArray.map(s => (
+                <span key={s.id} className="resumen-chip">{s.name}</span>
+              ))}
+              <span className="resumen-total">{formatPrice(total)} · {duracion} min</span>
+            </div>
+          )}
           <button
-            className={`btn-modal-agendar ${selected ? "enabled" : "disabled"}`}
-            onClick={handleAgendar}
-            disabled={!selected}
+            className={`btn-modal-agendar ${selArray.length ? "enabled" : "disabled"}`}
+            onClick={() => selArray.length && onAgendar(selArray)}
+            disabled={!selArray.length}
           >
             Agendar
           </button>
