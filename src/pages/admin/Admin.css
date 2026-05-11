@@ -2,11 +2,51 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-table-head: #1C1C1C;
+  --bg-avatar: #f3f4f6;
+  --bg-nav-hover: #f3f4f6;
+  --bg-nav-active: #eff6ff;
+  --bg-feedback-card: #f5f0dc;
+  --bg-feedback-avatar: #e8e0c4;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-nav-active: #2563eb;
+  --border-color: #e5e7eb;
+  --border-input: #d1d5db;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-card: #1f2937;
+  --bg-sidebar: #1f2937;
+  --bg-table-head: #000000;
+  --bg-avatar: #374151;
+  --bg-nav-hover: #374151;
+  --bg-nav-active: #1e3a5f;
+  --bg-feedback-card: #2d3748;
+  --bg-feedback-avatar: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-nav-active: #60a5fa;
+  --border-color: #374151;
+  --border-input: #4b5563;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f9fafb;
-  color: #111827;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .app-layout {
@@ -19,7 +59,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 32px;
-  background-color: #ffffff;
+  background-color: var(--bg-primary);
   position: relative;
   z-index: 1;
 }

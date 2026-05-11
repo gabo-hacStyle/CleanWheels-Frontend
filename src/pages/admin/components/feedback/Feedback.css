@@ -5,7 +5,7 @@
 .feedback_titulo {
   font-size: 30px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0 0 20px;
 }
 
@@ -18,9 +18,9 @@
 .filtro_btn {
   padding: 8px 20px;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  color: #1C1C1C;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -45,7 +45,7 @@
 }
 
 .feedback_card {
-  background-color: #f5f0dc;
+  background-color: var(--bg-feedback-card);
   border-radius: 12px;
   padding: 25px 20px;
   text-align: center;
@@ -61,24 +61,24 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #e8e0c4;
+  background-color: var(--bg-feedback-avatar);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 12px;
-  color: #687A7D;
+  color: var(--text-secondary);
 }
 
 .feedback_nombre {
   font-size: 15px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0 0 8px;
 }
 
 .feedback_texto {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0 0 12px;
   line-height: 1.5;
 }
@@ -91,7 +91,7 @@
 
 .estrella {
   font-size: 20px;
-  color: #d1d5db;
+  color: var(--border-input);
 }
 
 .estrella.activa {
@@ -109,8 +109,9 @@
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  border: 1px solid #d1d5db;
-  background: white;
+  border: 1px solid var(--border-input);
+  background: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -124,4 +125,26 @@
 
 .feedback_paginacion button:hover {
   border-color: #00E5FF;
+}
+
+/* ── Toggle modo oscuro ── */
+.theme-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s ease;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
 }

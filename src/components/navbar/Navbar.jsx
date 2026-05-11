@@ -7,6 +7,26 @@ const Navbar = () => {
     const [active, setActive] = useState("Inicio");
     const navigate = useNavigate();
 
+    const handleAgendar = () => {
+        const token = localStorage.getItem("token")
+        if (!token) {
+            navigate("/login")
+            return
+        }
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]))
+            if (payload.rol === "ADMIN") {
+                navigate("/admin")
+            } else if (payload.rol === "CLIENT") {
+                navigate("/dashboard")
+            } else {
+                navigate("/login")
+            }
+        } catch {
+            navigate("/login")
+        }
+    }
+
     return (
         <nav className="navbar">
             <div className="navbar-left">
@@ -28,7 +48,7 @@ const Navbar = () => {
                 <div className="btn-catalogo" onClick={() => navigate("/catalog")}>
                     <p>Catalogo</p>
                 </div>
-                <div className="btn-login" onClick={() => navigate("/login")}>
+                <div className="btn-login" onClick={handleAgendar}>
                     <p>Agendar</p>
                 </div>
             </div>

@@ -14,11 +14,21 @@ export default function Dashboard() {
   const [activePage, setActivePage] = useState("reservas");
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
+  const handleLogout = async () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/guest", { method: "POST" })
+      const data = await res.json()
+      const token = data.token?.token || data.token
+      if (token) localStorage.setItem("token", token)
+    } catch (err) {
+      console.error("Error generando token guest:", err)
+    }
+
+    navigate("/")
+  }
 
   return (
     <div className="app-layout">

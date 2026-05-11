@@ -1,5 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useEffect } from "react";
 import "./Sidebar.css";
 
 const CalendarIcon = () => (
@@ -63,14 +65,32 @@ const ServicesIcon = () => (
   </svg>
 );
 
+
 const NAV_ITEMS = [
-  { id: "reservas",  label: "Reservas",  Icon: CalendarIcon },
+  { id: "reservas", label: "Reservas", Icon: CalendarIcon },
   { id: "vehiculos", label: "Vehículos", Icon: TruckIcon },
-  { id: "reportes",  label: "Ingresos",  Icon: ChartIcon },
-  { id: "feedback",  label: "Reseñas",   Icon: StarIcon },
+  { id: "reportes", label: "Ingresos", Icon: ChartIcon },
+  { id: "feedback", label: "Reseñas", Icon: StarIcon },
 ];
 
-export default function Sidebar({ activePage, onNavigate }) {
+export default function Sidebar({ activePage, onNavigate, onLogout }) {
+  const [darkMode, setDarkMode] = useState(false);
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:8080/api/auth/me", {
+      headers: { "Authorization": `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setUsuario(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const toggleTheme = () => {
+    setDarkMode(prev => !prev);
+    document.body.classList.toggle("dark");
+  };
   const navigate = useNavigate();
   return (
     <aside className="sidebar">
@@ -82,7 +102,7 @@ export default function Sidebar({ activePage, onNavigate }) {
         </div>
         <div className="sidebar-user-info">
           <p className="sidebar-user-name">Admin Portal</p>
-          <p className="sidebar-user-sub">Username</p>
+          <p className="sidebar-user-sub">{usuario?.email ?? "Usuario"}</p>
         </div>
       </div>
 
@@ -114,7 +134,11 @@ export default function Sidebar({ activePage, onNavigate }) {
           <span className="sidebar-nav-label">Administrar Servicios</span>
         </button>
 
-        <button className="sidebar-logout" onClick={() => navigate("/")}>
+        <button className="theme-toggle" onClick={toggleTheme}>
+          <span className="sidebar-nav-icon">{darkMode ? "☀️" : "🌙"}</span>
+          <span className="sidebar-nav-label">{darkMode ? "Modo claro" : "Modo oscuro"}</span>
+        </button>
+       <button className="sidebar-logout" onClick={onLogout}>
           <span className="sidebar-nav-icon">
             <LogoutIcon />
           </span>
