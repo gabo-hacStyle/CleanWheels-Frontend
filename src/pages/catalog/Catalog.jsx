@@ -33,7 +33,7 @@ function Catalog() {
           titulo: cat.name,
           servicios: servs
             .filter(s => s.category_name === cat.name)
-            .map(s => ({ ...s, imagen: carGenerico }))
+            .map(s => ({ ...s, imagen: s.image_url || carGenerico }))
         })).filter(cat => cat.servicios.length > 0)
 
         setCategorias(categoriasConServicios)
