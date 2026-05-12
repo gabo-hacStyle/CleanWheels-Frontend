@@ -278,3 +278,12 @@ div.servicios_header {
 .btn_icono_desactivar {
   background-color: #fef3c7 !important;
 }
+.form_error {
+  color: #dc2626 !important;
+  font-size: 13px !important;
+  margin: 0 0 10px !important;
+  padding: 8px 12px !important;
+  background-color: #fee2e2 !important;
+  border-radius: 6px !important;
+  border-left: 3px solid #dc2626 !important;
+}

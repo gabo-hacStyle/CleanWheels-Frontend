@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Servicios.css'
 
-const formularioVacio = { name: "", price: "", description: "", duration: "", is_active: true, category_id: "" }
+const formularioVacio = { name: "", price: "", description: "", duration: "", is_active: true, category_id: "", url: "" }
 const categoriaVacia = { name: "", description: "" }
 
 export default function Servicios() {
@@ -13,6 +13,8 @@ export default function Servicios() {
   const [mostrarModalCat, setMostrarModalCat] = useState(false)
   const [formularioCat, setFormularioCat] = useState(categoriaVacia)
   const [editandoCatId, setEditandoCatId] = useState(null)
+  const [error, setError] = useState("")
+  const [errorCat, setErrorCat] = useState("")
 
   const token = localStorage.getItem("token")
   const headers = {
@@ -56,15 +58,56 @@ export default function Servicios() {
   }
 
   const handleGuardar = async () => {
-    if (!formulario.name || !formulario.price || !formulario.description || !formulario.duration || !formulario.category_id) return
+    setError("")
+
+    if (!formulario.name || !formulario.price || !formulario.description || !formulario.duration || !formulario.category_id) {
+      setError("Todos los campos son obligatorios.")
+      return
+    }
+
+    if (formulario.name.length > 150) {
+      setError("El nombre no puede superar 150 caracteres.")
+      return
+    }
+
+    const precio = parseFloat(formulario.price)
+    if (isNaN(precio) || precio <= 0 || precio > 99999999.99) {
+      setError("El precio debe ser un número entre 0 y 99,999,999.99.")
+      return
+    }
+
+    const duracion = parseInt(formulario.duration)
+    if (isNaN(duracion) || duracion <= 0 || duracion > 1440) {
+      setError("La duración debe ser un número entero entre 1 y 1440 minutos.")
+      return
+    }
+
+    if (formulario.description.length > 500) {
+      setError("La descripción no puede superar 500 caracteres.")
+      return
+    }
+
+    if (formulario.url && formulario.url.length > 500) {
+      setError("La URL de imagen no puede superar 500 caracteres.")
+      return
+    }
+
     try {
+      const body = {
+        ...formulario,
+        price: precio,
+        duration: duracion,
+        category_id: parseInt(formulario.category_id),
+        url: formulario.url || null
+      }
+
       if (editandoId !== null) {
         await fetch(`http://localhost:8080/api/booking/services/${editandoId}`, {
-          method: "PATCH", headers, body: JSON.stringify(formulario)
+          method: "PATCH", headers, body: JSON.stringify(body)
         })
       } else {
         await fetch("http://localhost:8080/api/booking/services/", {
-          method: "POST", headers, body: JSON.stringify(formulario)
+          method: "POST", headers, body: JSON.stringify(body)
         })
       }
       await cargarServicios()
@@ -73,13 +116,24 @@ export default function Servicios() {
       setMostrarFormulario(false)
     } catch (err) {
       console.error("Error guardando servicio:", err)
+      setError("Error al guardar el servicio.")
     }
   }
 
   const handleEditar = (servicio) => {
-    setFormulario(servicio)
+    const categoriaEncontrada = categorias.find(cat => cat.name === servicio.category_name)
+    setFormulario({
+      name: servicio.name,
+      price: servicio.price,
+      description: servicio.description,
+      duration: servicio.duration,
+      is_active: servicio.is_active,
+      category_id: categoriaEncontrada?.id ?? "",
+      url: servicio.image_url || ""
+    })
     setEditandoId(servicio.id)
     setMostrarFormulario(true)
+    setError("")
   }
 
   const handleEliminar = async (id) => {
@@ -104,10 +158,22 @@ export default function Servicios() {
     setFormulario(formularioVacio)
     setEditandoId(null)
     setMostrarFormulario(false)
+    setError("")
   }
 
   const handleGuardarCat = async () => {
-    if (!formularioCat.name) return
+    setErrorCat("")
+
+    if (!formularioCat.name || !formularioCat.description) {
+      setErrorCat("El nombre y la descripción son obligatorios.")
+      return
+    }
+
+    if (formularioCat.name.length > 100) {
+      setErrorCat("El nombre no puede superar 100 caracteres.")
+      return
+    }
+
     try {
       if (editandoCatId !== null) {
         await fetch(`http://localhost:8080/api/booking/categories/${editandoCatId}`, {
@@ -121,14 +187,17 @@ export default function Servicios() {
       await cargarCategorias()
       setFormularioCat(categoriaVacia)
       setEditandoCatId(null)
+      setErrorCat("")
     } catch (err) {
       console.error("Error guardando categoría:", err)
+      setErrorCat("Error al guardar la categoría.")
     }
   }
 
   const handleEditarCat = (cat) => {
     setFormularioCat({ name: cat.name, description: cat.description || "" })
     setEditandoCatId(cat.id)
+    setErrorCat("")
   }
 
   const handleEliminarCat = async (id) => {
@@ -143,6 +212,7 @@ export default function Servicios() {
   const handleCancelarCat = () => {
     setFormularioCat(categoriaVacia)
     setEditandoCatId(null)
+    setErrorCat("")
   }
 
   return (
@@ -153,7 +223,7 @@ export default function Servicios() {
           <button className="btn_categorias" onClick={() => setMostrarModalCat(true)}>
             🗂 Categorías
           </button>
-          <button className="btn_agregar" onClick={() => setMostrarFormulario(true)}>
+          <button className="btn_agregar" onClick={() => { setMostrarFormulario(true); setError("") }}>
             + Nuevo Servicio
           </button>
         </div>
@@ -163,21 +233,23 @@ export default function Servicios() {
         <div className="servicios_formulario">
           <h2>{editandoId ? 'Editar Servicio' : 'Nuevo Servicio'}</h2>
           <div className="formulario_grid">
-            <input name="name" placeholder="Nombre" value={formulario.name} onChange={handleChange} />
-            <input name="price" placeholder="Precio" value={formulario.price} onChange={handleChange} />
-            <input name="duration" placeholder="Duración (min)" value={formulario.duration} onChange={handleChange} />
-            <input name="description" placeholder="Descripción" value={formulario.description} onChange={handleChange} />
+            <input name="name" placeholder="Nombre (máx. 150 caracteres)" value={formulario.name} onChange={handleChange} />
+            <input name="price" placeholder="Precio (máx. 99,999,999.99)" type="number" value={formulario.price} onChange={handleChange} />
+            <input name="duration" placeholder="Duración en minutos (máx. 1440)" type="number" value={formulario.duration} onChange={handleChange} />
+            <input name="description" placeholder="Descripción (máx. 500 caracteres)" value={formulario.description} onChange={handleChange} />
             <select name="category_id" value={formulario.category_id} onChange={handleChange} className="formulario_select">
               <option value="">Seleccionar categoría</option>
               {categorias.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
+            <input name="url" placeholder="URL de imagen (opcional)" value={formulario.url} onChange={handleChange} />
             <label className="formulario_check">
               <input type="checkbox" name="is_active" checked={formulario.is_active} onChange={handleChange} />
               Activo
             </label>
           </div>
+          {error && <p className="form_error">{error}</p>}
           <div className="formulario_botones">
             <button className="btn_guardar" onClick={handleGuardar}>Guardar</button>
             <button className="btn_cancelar" onClick={handleCancelar}>Cancelar</button>
@@ -230,8 +302,8 @@ export default function Servicios() {
               <button className="modal_cerrar" onClick={() => { setMostrarModalCat(false); handleCancelarCat() }}>✕</button>
             </div>
             <div className="modal_formulario">
-              <input name="name" placeholder="Nombre de categoría" value={formularioCat.name} onChange={handleChangeCat} />
-              <input name="description" placeholder="Descripción (opcional)" value={formularioCat.description} onChange={handleChangeCat} />
+              <input name="name" placeholder="Nombre (máx. 100 caracteres)" value={formularioCat.name} onChange={handleChangeCat} />
+              <input name="description" placeholder="Descripción" value={formularioCat.description} onChange={handleChangeCat} />
               <div className="formulario_botones">
                 <button className="btn_guardar" onClick={handleGuardarCat}>
                   {editandoCatId ? "Actualizar" : "Agregar"}
@@ -241,6 +313,7 @@ export default function Servicios() {
                 )}
               </div>
             </div>
+            {errorCat && <p className="form_error">{errorCat}</p>}
             <table className="servicios_tabla">
               <thead>
                 <tr>
