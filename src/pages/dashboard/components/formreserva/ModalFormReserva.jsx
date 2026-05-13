@@ -1,17 +1,6 @@
 import { useState, useEffect } from "react";
 import "./ModalFormReserva.css";
 
-const MOCK_VEHICULOS = [
-  { id: 1, placa: "ABC123", marca: "Toyota",    modelo: "Corolla 2020"  },
-  { id: 2, placa: "XYZ789", marca: "Chevrolet", modelo: "Spark 2019"    },
-  { id: 3, placa: "DEF456", marca: "Mazda",     modelo: "CX-5 2021"     },
-  { id: 4, placa: "GHI321", marca: "Renault",   modelo: "Sandero 2018"  },
-  { id: 5, placa: "JKL654", marca: "Ford",      modelo: "Explorer 2022" },
-  { id: 6, placa: "MNO987", marca: "Kia",       modelo: "Picanto 2020"  },
-  { id: 7, placa: "PQR147", marca: "Hyundai",   modelo: "Tucson 2021"   },
-  { id: 8, placa: "STU258", marca: "Nissan",    modelo: "Sentra 2019"   },
-];
-
 const DIAS  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
@@ -48,6 +37,9 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const [loadingCal, setLoadingCal] = useState(true);
   const [errorCal, setErrorCal]     = useState(null);
 
+  const [vehiculos, setVehiculos]   = useState([]);
+  const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+  const [errorVehiculos, setErrorVehiculos] = useState(null);
   const [vehiculoId, setVehiculoId] = useState("");
   const [fechaSel, setFechaSel]     = useState(null);
   const [horaSel, setHoraSel]       = useState(null);
@@ -55,6 +47,51 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const [submitting, setSubmitting] = useState(false);
   const [errorPost, setErrorPost]   = useState(null);
 
+  // Obtener vehículos del usuario
+  useEffect(() => {
+    setLoadingVehiculos(true);
+    setErrorVehiculos(null);
+    
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setErrorVehiculos("No hay sesión iniciada");
+      setLoadingVehiculos(false);
+      return;
+    }
+
+    // Decodificar el token para obtener el user ID
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.sub;
+      
+      if (!userId) {
+        throw new Error("No se encontró ID de usuario en el token");
+      }
+
+      fetch(`http://localhost:8080/api/booking/reservations/${userId}/vehicles`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+        .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
+        .then(json => { 
+          if (!json.success) throw new Error(json.message || "Error al cargar vehículos"); 
+          setVehiculos(json.data);
+          // Seleccionar automáticamente si solo hay un vehículo
+          if (json.data.length === 1) {
+            setVehiculoId(json.data[0].id);
+          }
+        })
+        .catch(err => setErrorVehiculos(err.message))
+        .finally(() => setLoadingVehiculos(false));
+    } catch (err) {
+      setErrorVehiculos("Error al procesar el token");
+      setLoadingVehiculos(false);
+    }
+  }, []);
+
+  // Obtener calendario
   useEffect(() => {
     setLoadingCal(true);
     setErrorCal(null);
@@ -172,19 +209,26 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
           {/* Vehículo */}
           <section className="mfr-section">
             <label className="mfr-label" htmlFor="vehiculo">Vehículo</label>
-            <select
-              id="vehiculo"
-              className="mfr-select"
-              value={vehiculoId}
-              onChange={e => setVehiculoId(e.target.value)}
-            >
-              <option value="" disabled>Selecciona un vehículo</option>
-              {MOCK_VEHICULOS.map(v => (
-                <option key={v.id} value={v.id}>
-                  {v.placa} — {v.marca} {v.modelo}
-                </option>
-              ))}
-            </select>
+            {loadingVehiculos && <p className="mfr-hint">Cargando vehículos...</p>}
+            {errorVehiculos && <p className="mfr-error">{errorVehiculos}</p>}
+            {!loadingVehiculos && !errorVehiculos && vehiculos.length === 0 && (
+              <p className="mfr-error">No tienes vehículos registrados. Por favor, registra un vehículo primero.</p>
+            )}
+            {!loadingVehiculos && !errorVehiculos && vehiculos.length > 0 && (
+              <select
+                id="vehiculo"
+                className="mfr-select"
+                value={vehiculoId}
+                onChange={e => setVehiculoId(e.target.value)}
+              >
+                <option value="" disabled>Selecciona un vehículo</option>
+                {vehiculos.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.placa} — {v.marca} {v.modelo}
+                  </option>
+                ))}
+              </select>
+            )}
           </section>
 
           {/* Calendario semanal */}
