@@ -190,6 +190,29 @@
 
 .mfr-select:focus { border-color: #00E5FF; }
 
+.mfr-fixed-schedule {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #a5f3fc;
+  background: linear-gradient(135deg, #ecfeff 0%, #f0fdfa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #0f172a;
+}
+
+.mfr-fixed-schedule strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.mfr-fixed-schedule span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0891b2;
+}
+
 /* ── Navegación semana ── */
 .mfr-cal-nav {
   display: flex;

@@ -15,21 +15,55 @@ const MOCK_VEHICULOS = [
 const DIAS  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
+function formatDateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateValue(dateStr) {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 function getWeekStart(date) {
-  const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay());
-  return d.toISOString().split("T")[0];
+  const d = typeof date === "string" ? parseDateValue(date) : new Date(date);
+  const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+  d.setDate(d.getDate() + diff);
+  return formatDateInputValue(d);
 }
 
 function formatDateLabel(dateStr) {
-  const [y, m, d] = dateStr.split("-");
-  const date = new Date(y, m - 1, d);
-  return `${DIAS[date.getDay()]} ${d} ${MESES[m - 1]}`;
+  const date = parseDateValue(dateStr);
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${DIAS[date.getDay()]} ${day} ${MESES[date.getMonth()]}`;
 }
 
 function toDateObj(dateStr) {
-  const [y, m, d] = dateStr.split("-");
-  return new Date(y, m - 1, d);
+  return parseDateValue(dateStr);
+}
+
+function parseHourValue(hour) {
+  const [hours, minutes] = hour.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function isSlotInThePast(dateStr, hour) {
+  const today = new Date();
+  const selectedDate = parseDateValue(dateStr);
+  const currentDate = formatDateInputValue(today);
+  const selectedDateValue = formatDateInputValue(selectedDate);
+
+  if (selectedDateValue < currentDate) {
+    return true;
+  }
+
+  if (selectedDateValue > currentDate) {
+    return false;
+  }
+
+  return parseHourValue(hour) < today.getHours() * 60 + today.getMinutes();
 }
 
 function formatPrice(price) {
@@ -40,22 +74,33 @@ function formatPrice(price) {
   }).format(Number(price));
 }
 
-export default function ModalFormReserva({ servicios, onClose, onConfirmada, onVolver }) {
-  const hoy = new Date().toISOString().split("T")[0];
+export default function ModalFormReserva({ servicios, onClose, onConfirmada, onVolver, timeSelected = null }) {
+  const hoy = formatDateInputValue(new Date());
+  const tieneHorarioFijo = Boolean(timeSelected?.date && timeSelected?.hour);
 
-  const [weekStart, setWeekStart]   = useState(getWeekStart(hoy));
+  const [weekStart, setWeekStart]   = useState(getWeekStart(timeSelected?.date ?? hoy));
   const [calendario, setCalendario] = useState(null);
   const [loadingCal, setLoadingCal] = useState(true);
   const [errorCal, setErrorCal]     = useState(null);
 
   const [vehiculoId, setVehiculoId] = useState("");
-  const [fechaSel, setFechaSel]     = useState(null);
-  const [horaSel, setHoraSel]       = useState(null);
+  const [fechaSel, setFechaSel]     = useState(tieneHorarioFijo ? timeSelected.date : null);
+  const [horaSel, setHoraSel]       = useState(tieneHorarioFijo ? timeSelected.hour : null);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorPost, setErrorPost]   = useState(null);
 
   useEffect(() => {
+    if (tieneHorarioFijo) {
+      setLoadingCal(false);
+      setErrorCal(null);
+      setCalendario(null);
+      setWeekStart(getWeekStart(timeSelected.date));
+      setFechaSel(timeSelected.date);
+      setHoraSel(timeSelected.hour);
+      return;
+    }
+
     setLoadingCal(true);
     setErrorCal(null);
     setFechaSel(null);
@@ -72,7 +117,7 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
       .then(json => { if (!json.success) throw new Error("Respuesta no exitosa"); setCalendario(json.data); })
       .catch(err => setErrorCal(err.message))
       .finally(() => setLoadingCal(false));
-  }, [weekStart]);
+  }, [weekStart, tieneHorarioFijo, timeSelected]);
 
   const irSemanaAnterior = () => {
     const d = new Date(weekStart);
@@ -102,6 +147,8 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
       service_ids: servicios.map(s => String(s.id)),
     };
 
+    console.log(body);
+
     try {
       const r = await fetch("http://localhost:8080/api/booking/reservations/", {
         method: "POST",
@@ -112,11 +159,19 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
         body: JSON.stringify(body),
       });
       const json = await r.json();
-      if (!r.ok || !json.success) throw new Error(json.message || `Error ${r.status}`);
+
+      if (r.status === 422) {
+        throw new Error("El horario seleccionado ya no está disponible.");
+      }
+
+      if (!r.ok || !json.success) {
+        throw new Error(json.message || json.error || `Error ${r.status}`);
+      }
+
       onConfirmada?.(json.data);
       onClose();
     } catch (err) {
-      setErrorPost(err.message);
+      setErrorPost(err.message || "No se pudo crear la reserva.");
     } finally {
       setSubmitting(false);
     }
@@ -187,61 +242,71 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
             </select>
           </section>
 
-          {/* Calendario semanal */}
-          <section className="mfr-section">
-            <div className="mfr-cal-nav">
-              <button className="mfr-nav-btn" onClick={irSemanaAnterior} disabled={semanaAnteriorDeshabilitada}>‹</button>
-              <span className="mfr-label" style={{ margin: 0 }}>
-                {calendario
-                  ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
-                  : "Cargando..."}
-              </span>
-              <button className="mfr-nav-btn" onClick={irSemanaSiguiente}>›</button>
-            </div>
-
-            {loadingCal && <p className="mfr-hint">Cargando disponibilidad...</p>}
-            {errorCal   && <p className="mfr-error">{errorCal}</p>}
-
-            {!loadingCal && !errorCal && (
-              <div className="mfr-dias-grid">
-                {calendario.days.map(dia => {
-                  const pasado        = toDateObj(dia.date) < toDateObj(hoy);
-                  const todosLlenos   = dia.slots.every(s => s.full);
-                  const deshabilitado = pasado || todosLlenos;
-                  const seleccionado  = fechaSel === dia.date;
-
-                  return (
-                    <button
-                      key={dia.date}
-                      className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
-                      disabled={deshabilitado}
-                      onClick={() => { setFechaSel(dia.date); setHoraSel(null); }}
-                    >
-                      {formatDateLabel(dia.date)}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* Horas */}
-          {fechaSel && (
+          {tieneHorarioFijo ? (
             <section className="mfr-section">
-              <p className="mfr-label">Hora disponible</p>
-              <div className="mfr-horas-grid">
-                {slotsDia.map(slot => (
-                  <button
-                    key={slot.hour}
-                    className={`mfr-hora-btn ${horaSel === slot.hour ? "sel" : ""} ${slot.full ? "dis" : ""}`}
-                    disabled={slot.full}
-                    onClick={() => setHoraSel(slot.hour)}
-                  >
-                    {slot.hour}
-                  </button>
-                ))}
+              <p className="mfr-label">Horario seleccionado</p>
+              <div className="mfr-fixed-schedule">
+                <strong>{formatDateLabel(timeSelected.date)}</strong>
+                <span>{timeSelected.hour}</span>
               </div>
             </section>
+          ) : (
+            <>
+              <section className="mfr-section">
+                <div className="mfr-cal-nav">
+                  <button className="mfr-nav-btn" onClick={irSemanaAnterior} disabled={semanaAnteriorDeshabilitada}>‹</button>
+                  <span className="mfr-label" style={{ margin: 0 }}>
+                    {calendario
+                      ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
+                      : "Cargando..."}
+                  </span>
+                  <button className="mfr-nav-btn" onClick={irSemanaSiguiente}>›</button>
+                </div>
+
+                {loadingCal && <p className="mfr-hint">Cargando disponibilidad...</p>}
+                {errorCal   && <p className="mfr-error">{errorCal}</p>}
+
+                {!loadingCal && !errorCal && calendario && (
+                  <div className="mfr-dias-grid">
+                    {calendario.days.map(dia => {
+                      const pasado        = toDateObj(dia.date) < toDateObj(hoy);
+                      const todosLlenos   = dia.slots.every(s => s.full);
+                      const deshabilitado = pasado || todosLlenos;
+                      const seleccionado  = fechaSel === dia.date;
+
+                      return (
+                        <button
+                          key={dia.date}
+                          className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
+                          disabled={deshabilitado}
+                          onClick={() => { setFechaSel(dia.date); setHoraSel(null); }}
+                        >
+                          {formatDateLabel(dia.date)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+
+              {fechaSel && (
+                <section className="mfr-section">
+                  <p className="mfr-label">Hora disponible</p>
+                  <div className="mfr-horas-grid">
+                    {slotsDia.map(slot => (
+                      <button
+                        key={slot.hour}
+                        className={`mfr-hora-btn ${horaSel === slot.hour ? "sel" : ""} ${slot.full || isSlotInThePast(fechaSel, slot.hour) ? "dis" : ""}`}
+                        disabled={slot.full || isSlotInThePast(fechaSel, slot.hour)}
+                        onClick={() => setHoraSel(slot.hour)}
+                      >
+                        {slot.hour}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
           )}
 
           {errorPost && <p className="mfr-error">{errorPost}</p>}
