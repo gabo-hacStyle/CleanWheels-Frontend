@@ -1,16 +1,6 @@
 import { useState, useEffect } from "react";
 import "./ModalFormReserva.css";
-
-const MOCK_VEHICULOS = [
-  { id: 1, placa: "ABC123", marca: "Toyota",    modelo: "Corolla 2020"  },
-  { id: 2, placa: "XYZ789", marca: "Chevrolet", modelo: "Spark 2019"    },
-  { id: 3, placa: "DEF456", marca: "Mazda",     modelo: "CX-5 2021"     },
-  { id: 4, placa: "GHI321", marca: "Renault",   modelo: "Sandero 2018"  },
-  { id: 5, placa: "JKL654", marca: "Ford",      modelo: "Explorer 2022" },
-  { id: 6, placa: "MNO987", marca: "Kia",       modelo: "Picanto 2020"  },
-  { id: 7, placa: "PQR147", marca: "Hyundai",   modelo: "Tucson 2021"   },
-  { id: 8, placa: "STU258", marca: "Nissan",    modelo: "Sentra 2019"   },
-];
+import ModalAgregarVehiculo from "../vehiculos/ModalAgregarVehiculo";
 
 const DIAS  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -83,6 +73,9 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const [loadingCal, setLoadingCal] = useState(true);
   const [errorCal, setErrorCal]     = useState(null);
 
+  const [vehiculos, setVehiculos]   = useState([]);
+  const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+  const [errorVehiculos, setErrorVehiculos] = useState(null);
   const [vehiculoId, setVehiculoId] = useState("");
   const [fechaSel, setFechaSel]     = useState(tieneHorarioFijo ? timeSelected.date : null);
   const [horaSel, setHoraSel]       = useState(tieneHorarioFijo ? timeSelected.hour : null);
@@ -90,6 +83,45 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const [submitting, setSubmitting] = useState(false);
   const [errorPost, setErrorPost]   = useState(null);
 
+  const [modalVehiculoOpen, setModalVehiculoOpen] = useState(false);
+
+  // ── Fetch vehículos ──────────────────────────────────────────
+  const fetchVehiculos = () => {
+    setLoadingVehiculos(true);
+    setErrorVehiculos(null);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setErrorVehiculos("No hay sesión iniciada");
+      setLoadingVehiculos(false);
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.sub;
+      if (!userId) throw new Error("No se encontró ID de usuario en el token");
+
+      fetch(`http://localhost:8080/api/booking/vehicles/${userId}`, {
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      })
+        .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
+        .then(json => {
+          if (!json.success) throw new Error(json.message || "Error al cargar vehículos");
+          setVehiculos(json.data);
+          if (json.data.length === 1) setVehiculoId(json.data[0].id);
+        })
+        .catch(err => setErrorVehiculos(err.message))
+        .finally(() => setLoadingVehiculos(false));
+    } catch (err) {
+      setErrorVehiculos("Error al procesar el token");
+      setLoadingVehiculos(false);
+    }
+  };
+
+  useEffect(() => { fetchVehiculos(); }, []);
+
+  // ── Fetch calendario ─────────────────────────────────────────
   useEffect(() => {
     if (tieneHorarioFijo) {
       setLoadingCal(false);
@@ -108,10 +140,7 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
 
     const token = localStorage.getItem("token");
     fetch(`http://localhost:8080/api/booking/reservations/calendar/week?week_start=${weekStart}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
     })
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
       .then(json => { if (!json.success) throw new Error("Respuesta no exitosa"); setCalendario(json.data); })
@@ -152,10 +181,7 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
     try {
       const r = await fetch("http://localhost:8080/api/booking/reservations/", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const json = await r.json();
@@ -185,62 +211,81 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const listo    = vehiculoId && fechaSel && horaSel;
 
   return (
-    <div className="mfr-backdrop" onClick={handleBackdrop}>
-      <div className="mfr-box">
+    <>
+      <div className="mfr-backdrop" onClick={handleBackdrop}>
+        <div className="mfr-box">
 
-        {/* Header */}
-        <div className="mfr-header">
-          <div className="mfr-header-left">
-            <button className="mfr-back" onClick={onVolver} title="Volver a servicios">
-              ‹ Servicios
-            </button>
-            <h2 className="mfr-title">Crear Reservación</h2>
-          </div>
-          <button className="mfr-close" onClick={onClose} aria-label="Cerrar">✕</button>
-        </div>
-
-        <div className="mfr-body">
-
-          {/* Resumen de servicios */}
-          <section className="mfr-section">
-            <p className="mfr-label">Servicios seleccionados</p>
-            <div className="mfr-servicios-tabla">
-              {servicios.map(s => (
-                <div key={s.id} className="mfr-servicio-fila">
-                  <div className="mfr-servicio-info">
-                    <span className="mfr-servicio-nombre">{s.name}</span>
-                    <span className="mfr-servicio-duracion">{s.duration} min</span>
-                  </div>
-                  <span className="mfr-servicio-precio">{formatPrice(s.price)}</span>
-                </div>
-              ))}
-              <div className="mfr-servicios-total">
-                <div className="mfr-total-left">
-                  <span>Total</span>
-                  <span className="mfr-total-duracion">{duracion} min</span>
-                </div>
-                <span className="mfr-total-precio">{formatPrice(total)}</span>
-              </div>
+          {/* Header */}
+          <div className="mfr-header">
+            <div className="mfr-header-left">
+              <button className="mfr-back" onClick={onVolver} title="Volver a servicios">
+                ‹ Servicios
+              </button>
+              <h2 className="mfr-title">Crear Reservación</h2>
             </div>
-          </section>
+            <button className="mfr-close" onClick={onClose} aria-label="Cerrar">✕</button>
+          </div>
 
-          {/* Vehículo */}
-          <section className="mfr-section">
-            <label className="mfr-label" htmlFor="vehiculo">Vehículo</label>
-            <select
-              id="vehiculo"
-              className="mfr-select"
-              value={vehiculoId}
-              onChange={e => setVehiculoId(e.target.value)}
-            >
-              <option value="" disabled>Selecciona un vehículo</option>
-              {MOCK_VEHICULOS.map(v => (
-                <option key={v.id} value={v.id}>
-                  {v.placa} — {v.marca} {v.modelo}
-                </option>
-              ))}
-            </select>
-          </section>
+          <div className="mfr-body">
+
+            {/* Resumen de servicios */}
+            <section className="mfr-section">
+              <p className="mfr-label">Servicios seleccionados</p>
+              <div className="mfr-servicios-tabla">
+                {servicios.map(s => (
+                  <div key={s.id} className="mfr-servicio-fila">
+                    <div className="mfr-servicio-info">
+                      <span className="mfr-servicio-nombre">{s.name}</span>
+                      <span className="mfr-servicio-duracion">{s.duration} min</span>
+                    </div>
+                    <span className="mfr-servicio-precio">{formatPrice(s.price)}</span>
+                  </div>
+                ))}
+                <div className="mfr-servicios-total">
+                  <div className="mfr-total-left">
+                    <span>Total</span>
+                    <span className="mfr-total-duracion">{duracion} min</span>
+                  </div>
+                  <span className="mfr-total-precio">{formatPrice(total)}</span>
+                </div>
+              </div>
+            </section>
+
+            {/* Vehículo */}
+            <section className="mfr-section">
+              <label className="mfr-label" htmlFor="vehiculo">Vehículo</label>
+              {loadingVehiculos && <p className="mfr-hint">Cargando vehículos...</p>}
+              {errorVehiculos && <p className="mfr-error">{errorVehiculos}</p>}
+
+              {!loadingVehiculos && !errorVehiculos && vehiculos.length === 0 && (
+                <div className="mfr-no-vehiculos">
+                  <p className="mfr-hint">No tienes vehículos registrados.</p>
+                  <button
+                    type="button"
+                    className="mfr-btn-agregar-vehiculo"
+                    onClick={() => setModalVehiculoOpen(true)}
+                  >
+                    + Agregar vehículo
+                  </button>
+                </div>
+              )}
+
+              {!loadingVehiculos && !errorVehiculos && vehiculos.length > 0 && (
+                <select
+                  id="vehiculo"
+                  className="mfr-select"
+                  value={vehiculoId}
+                  onChange={e => setVehiculoId(e.target.value)}
+                >
+                  <option value="" disabled>Selecciona un vehículo</option>
+                  {vehiculos.map(v => (
+                    <option key={v.id} value={v.id}>
+                      {v.placa} — {v.marca} {v.modelo}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </section>
 
           {tieneHorarioFijo ? (
             <section className="mfr-section">
@@ -309,21 +354,32 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
             </>
           )}
 
-          {errorPost && <p className="mfr-error">{errorPost}</p>}
-        </div>
+            {errorPost && <p className="mfr-error">{errorPost}</p>}
+          </div>
 
-        {/* Footer */}
-        <div className="mfr-footer">
-          <button
-            className={`mfr-btn-confirmar ${listo ? "enabled" : "disabled"}`}
-            disabled={!listo || submitting}
-            onClick={handleConfirmar}
-          >
-            {submitting ? "Confirmando..." : "Confirmar Reserva"}
-          </button>
-        </div>
+          {/* Footer */}
+          <div className="mfr-footer">
+            <button
+              className={`mfr-btn-confirmar ${listo ? "enabled" : "disabled"}`}
+              disabled={!listo || submitting}
+              onClick={handleConfirmar}
+            >
+              {submitting ? "Confirmando..." : "Confirmar Reserva"}
+            </button>
+          </div>
 
+        </div>
       </div>
-    </div>
+
+      {/* Modal agregar vehículo — encima del modal de reserva */}
+      <ModalAgregarVehiculo
+        isOpen={modalVehiculoOpen}
+        onClose={() => setModalVehiculoOpen(false)}
+        onSuccess={() => {
+          setModalVehiculoOpen(false);
+          fetchVehiculos();
+        }}
+      />
+    </>
   );
 }
