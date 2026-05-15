@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./ModalFormReserva.css";
+import ModalAgregarVehiculo from "../vehiculos/ModalAgregarVehiculo";
 
 const DIAS  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -47,11 +48,13 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const [submitting, setSubmitting] = useState(false);
   const [errorPost, setErrorPost]   = useState(null);
 
-  // Obtener vehículos del usuario
-  useEffect(() => {
+  const [modalVehiculoOpen, setModalVehiculoOpen] = useState(false);
+
+  // ── Fetch vehículos ──────────────────────────────────────────
+  const fetchVehiculos = () => {
     setLoadingVehiculos(true);
     setErrorVehiculos(null);
-    
+
     const token = localStorage.getItem("token");
     if (!token) {
       setErrorVehiculos("No hay sesión iniciada");
@@ -59,29 +62,19 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
       return;
     }
 
-    // Decodificar el token para obtener el user ID
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.sub;
-      
-      if (!userId) {
-        throw new Error("No se encontró ID de usuario en el token");
-      }
+      if (!userId) throw new Error("No se encontró ID de usuario en el token");
 
       fetch(`http://localhost:8080/api/booking/vehicles/${userId}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
       })
         .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
-        .then(json => { 
-          if (!json.success) throw new Error(json.message || "Error al cargar vehículos"); 
+        .then(json => {
+          if (!json.success) throw new Error(json.message || "Error al cargar vehículos");
           setVehiculos(json.data);
-          // Seleccionar automáticamente si solo hay un vehículo
-          if (json.data.length === 1) {
-            setVehiculoId(json.data[0].id);
-          }
+          if (json.data.length === 1) setVehiculoId(json.data[0].id);
         })
         .catch(err => setErrorVehiculos(err.message))
         .finally(() => setLoadingVehiculos(false));
@@ -89,9 +82,11 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
       setErrorVehiculos("Error al procesar el token");
       setLoadingVehiculos(false);
     }
-  }, []);
+  };
 
-  // Obtener calendario
+  useEffect(() => { fetchVehiculos(); }, []);
+
+  // ── Fetch calendario ─────────────────────────────────────────
   useEffect(() => {
     setLoadingCal(true);
     setErrorCal(null);
@@ -100,10 +95,7 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
 
     const token = localStorage.getItem("token");
     fetch(`http://localhost:8080/api/booking/reservations/calendar/week?week_start=${weekStart}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
     })
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
       .then(json => { if (!json.success) throw new Error("Respuesta no exitosa"); setCalendario(json.data); })
@@ -142,10 +134,7 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
     try {
       const r = await fetch("http://localhost:8080/api/booking/reservations/", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const json = await r.json();
@@ -167,142 +156,165 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
   const listo    = vehiculoId && fechaSel && horaSel;
 
   return (
-    <div className="mfr-backdrop" onClick={handleBackdrop}>
-      <div className="mfr-box">
+    <>
+      <div className="mfr-backdrop" onClick={handleBackdrop}>
+        <div className="mfr-box">
 
-        {/* Header */}
-        <div className="mfr-header">
-          <div className="mfr-header-left">
-            <button className="mfr-back" onClick={onVolver} title="Volver a servicios">
-              ‹ Servicios
-            </button>
-            <h2 className="mfr-title">Crear Reservación</h2>
+          {/* Header */}
+          <div className="mfr-header">
+            <div className="mfr-header-left">
+              <button className="mfr-back" onClick={onVolver} title="Volver a servicios">
+                ‹ Servicios
+              </button>
+              <h2 className="mfr-title">Crear Reservación</h2>
+            </div>
+            <button className="mfr-close" onClick={onClose} aria-label="Cerrar">✕</button>
           </div>
-          <button className="mfr-close" onClick={onClose} aria-label="Cerrar">✕</button>
-        </div>
 
-        <div className="mfr-body">
+          <div className="mfr-body">
 
-          {/* Resumen de servicios */}
-          <section className="mfr-section">
-            <p className="mfr-label">Servicios seleccionados</p>
-            <div className="mfr-servicios-tabla">
-              {servicios.map(s => (
-                <div key={s.id} className="mfr-servicio-fila">
-                  <div className="mfr-servicio-info">
-                    <span className="mfr-servicio-nombre">{s.name}</span>
-                    <span className="mfr-servicio-duracion">{s.duration} min</span>
-                  </div>
-                  <span className="mfr-servicio-precio">{formatPrice(s.price)}</span>
-                </div>
-              ))}
-              <div className="mfr-servicios-total">
-                <div className="mfr-total-left">
-                  <span>Total</span>
-                  <span className="mfr-total-duracion">{duracion} min</span>
-                </div>
-                <span className="mfr-total-precio">{formatPrice(total)}</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Vehículo */}
-          <section className="mfr-section">
-            <label className="mfr-label" htmlFor="vehiculo">Vehículo</label>
-            {loadingVehiculos && <p className="mfr-hint">Cargando vehículos...</p>}
-            {errorVehiculos && <p className="mfr-error">{errorVehiculos}</p>}
-            {!loadingVehiculos && !errorVehiculos && vehiculos.length === 0 && (
-              <p className="mfr-error">No tienes vehículos registrados. Por favor, registra un vehículo primero.</p>
-            )}
-            {!loadingVehiculos && !errorVehiculos && vehiculos.length > 0 && (
-              <select
-                id="vehiculo"
-                className="mfr-select"
-                value={vehiculoId}
-                onChange={e => setVehiculoId(e.target.value)}
-              >
-                <option value="" disabled>Selecciona un vehículo</option>
-                {vehiculos.map(v => (
-                  <option key={v.id} value={v.id}>
-                    {v.placa} — {v.marca} {v.modelo}
-                  </option>
-                ))}
-              </select>
-            )}
-          </section>
-
-          {/* Calendario semanal */}
-          <section className="mfr-section">
-            <div className="mfr-cal-nav">
-              <button className="mfr-nav-btn" onClick={irSemanaAnterior} disabled={semanaAnteriorDeshabilitada}>‹</button>
-              <span className="mfr-label" style={{ margin: 0 }}>
-                {calendario
-                  ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
-                  : "Cargando..."}
-              </span>
-              <button className="mfr-nav-btn" onClick={irSemanaSiguiente}>›</button>
-            </div>
-
-            {loadingCal && <p className="mfr-hint">Cargando disponibilidad...</p>}
-            {errorCal   && <p className="mfr-error">{errorCal}</p>}
-
-            {!loadingCal && !errorCal && (
-              <div className="mfr-dias-grid">
-                {calendario.days.map(dia => {
-                  const pasado        = toDateObj(dia.date) < toDateObj(hoy);
-                  const todosLlenos   = dia.slots.every(s => s.full);
-                  const deshabilitado = pasado || todosLlenos;
-                  const seleccionado  = fechaSel === dia.date;
-
-                  return (
-                    <button
-                      key={dia.date}
-                      className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
-                      disabled={deshabilitado}
-                      onClick={() => { setFechaSel(dia.date); setHoraSel(null); }}
-                    >
-                      {formatDateLabel(dia.date)}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          {/* Horas */}
-          {fechaSel && (
+            {/* Resumen de servicios */}
             <section className="mfr-section">
-              <p className="mfr-label">Hora disponible</p>
-              <div className="mfr-horas-grid">
-                {slotsDia.map(slot => (
-                  <button
-                    key={slot.hour}
-                    className={`mfr-hora-btn ${horaSel === slot.hour ? "sel" : ""} ${slot.full ? "dis" : ""}`}
-                    disabled={slot.full}
-                    onClick={() => setHoraSel(slot.hour)}
-                  >
-                    {slot.hour}
-                  </button>
+              <p className="mfr-label">Servicios seleccionados</p>
+              <div className="mfr-servicios-tabla">
+                {servicios.map(s => (
+                  <div key={s.id} className="mfr-servicio-fila">
+                    <div className="mfr-servicio-info">
+                      <span className="mfr-servicio-nombre">{s.name}</span>
+                      <span className="mfr-servicio-duracion">{s.duration} min</span>
+                    </div>
+                    <span className="mfr-servicio-precio">{formatPrice(s.price)}</span>
+                  </div>
                 ))}
+                <div className="mfr-servicios-total">
+                  <div className="mfr-total-left">
+                    <span>Total</span>
+                    <span className="mfr-total-duracion">{duracion} min</span>
+                  </div>
+                  <span className="mfr-total-precio">{formatPrice(total)}</span>
+                </div>
               </div>
             </section>
-          )}
 
-          {errorPost && <p className="mfr-error">{errorPost}</p>}
+            {/* Vehículo */}
+            <section className="mfr-section">
+              <label className="mfr-label" htmlFor="vehiculo">Vehículo</label>
+              {loadingVehiculos && <p className="mfr-hint">Cargando vehículos...</p>}
+              {errorVehiculos && <p className="mfr-error">{errorVehiculos}</p>}
+
+              {!loadingVehiculos && !errorVehiculos && vehiculos.length === 0 && (
+                <div className="mfr-no-vehiculos">
+                  <p className="mfr-hint">No tienes vehículos registrados.</p>
+                  <button
+                    type="button"
+                    className="mfr-btn-agregar-vehiculo"
+                    onClick={() => setModalVehiculoOpen(true)}
+                  >
+                    + Agregar vehículo
+                  </button>
+                </div>
+              )}
+
+              {!loadingVehiculos && !errorVehiculos && vehiculos.length > 0 && (
+                <select
+                  id="vehiculo"
+                  className="mfr-select"
+                  value={vehiculoId}
+                  onChange={e => setVehiculoId(e.target.value)}
+                >
+                  <option value="" disabled>Selecciona un vehículo</option>
+                  {vehiculos.map(v => (
+                    <option key={v.id} value={v.id}>
+                      {v.placa} — {v.marca} {v.modelo}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </section>
+
+            {/* Calendario semanal */}
+            <section className="mfr-section">
+              <div className="mfr-cal-nav">
+                <button className="mfr-nav-btn" onClick={irSemanaAnterior} disabled={semanaAnteriorDeshabilitada}>‹</button>
+                <span className="mfr-label" style={{ margin: 0 }}>
+                  {calendario
+                    ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
+                    : "Cargando..."}
+                </span>
+                <button className="mfr-nav-btn" onClick={irSemanaSiguiente}>›</button>
+              </div>
+
+              {loadingCal && <p className="mfr-hint">Cargando disponibilidad...</p>}
+              {errorCal   && <p className="mfr-error">{errorCal}</p>}
+
+              {!loadingCal && !errorCal && (
+                <div className="mfr-dias-grid">
+                  {calendario.days.map(dia => {
+                    const pasado        = toDateObj(dia.date) < toDateObj(hoy);
+                    const todosLlenos   = dia.slots.every(s => s.full);
+                    const deshabilitado = pasado || todosLlenos;
+                    const seleccionado  = fechaSel === dia.date;
+
+                    return (
+                      <button
+                        key={dia.date}
+                        className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
+                        disabled={deshabilitado}
+                        onClick={() => { setFechaSel(dia.date); setHoraSel(null); }}
+                      >
+                        {formatDateLabel(dia.date)}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            {/* Horas */}
+            {fechaSel && (
+              <section className="mfr-section">
+                <p className="mfr-label">Hora disponible</p>
+                <div className="mfr-horas-grid">
+                  {slotsDia.map(slot => (
+                    <button
+                      key={slot.hour}
+                      className={`mfr-hora-btn ${horaSel === slot.hour ? "sel" : ""} ${slot.full ? "dis" : ""}`}
+                      disabled={slot.full}
+                      onClick={() => setHoraSel(slot.hour)}
+                    >
+                      {slot.hour}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {errorPost && <p className="mfr-error">{errorPost}</p>}
+          </div>
+
+          {/* Footer */}
+          <div className="mfr-footer">
+            <button
+              className={`mfr-btn-confirmar ${listo ? "enabled" : "disabled"}`}
+              disabled={!listo || submitting}
+              onClick={handleConfirmar}
+            >
+              {submitting ? "Confirmando..." : "Confirmar Reserva"}
+            </button>
+          </div>
+
         </div>
-
-        {/* Footer */}
-        <div className="mfr-footer">
-          <button
-            className={`mfr-btn-confirmar ${listo ? "enabled" : "disabled"}`}
-            disabled={!listo || submitting}
-            onClick={handleConfirmar}
-          >
-            {submitting ? "Confirmando..." : "Confirmar Reserva"}
-          </button>
-        </div>
-
       </div>
-    </div>
+
+      {/* Modal agregar vehículo — encima del modal de reserva */}
+      <ModalAgregarVehiculo
+        isOpen={modalVehiculoOpen}
+        onClose={() => setModalVehiculoOpen(false)}
+        onSuccess={() => {
+          setModalVehiculoOpen(false);
+          fetchVehiculos();
+        }}
+      />
+    </>
   );
 }
