@@ -49,6 +49,30 @@
   margin-bottom: 30px;
 }
 
+.reportes_cards {
+  flex-wrap: wrap;
+}
+
+.reportes_personalizado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.reportes_personalizado input[type="date"] {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input, #fff);
+  color: var(--text-primary);
+}
+
+.reportes_personalizado label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 .reporte_card {
   background-color: var(--bg-card);
   border-radius: 10px;
@@ -93,4 +117,28 @@
   font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 15px;
+}
+
+.reportes_tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.reportes_tabla th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+.reportes_tabla td {
+  padding: 10px 12px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reportes_tabla tr:hover {
+  background: var(--bg-nav-hover);
 }
