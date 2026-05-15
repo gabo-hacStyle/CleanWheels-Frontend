@@ -12,7 +12,7 @@ function formatPrice(price) {
   }).format(Number(price));
 }
 
-export default function ModalServicios({ onClose, onAgendar }) {
+export default function ModalServicios({ onClose, onAgendar, timeSelected = null }) {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState(null);
@@ -73,6 +73,14 @@ export default function ModalServicios({ onClose, onAgendar }) {
     if (e.target === e.currentTarget) onClose();
   };
 
+  const handleAgendar = () => {
+    if (!selArray.length) {
+      return;
+    }
+
+    onAgendar(selArray, timeSelected);
+  };
+
   const selArray = Object.values(seleccionados);
   const total    = selArray.reduce((acc, s) => acc + parseFloat(s.price), 0);
   const duracion = selArray.reduce((acc, s) => acc + s.duration, 0);
@@ -85,6 +93,14 @@ export default function ModalServicios({ onClose, onAgendar }) {
           <h2 className="modal-title">AGENDAR SERVICIOS</h2>
           <button className="modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
+
+        {timeSelected && (
+          <div className="modal-time-selected">
+            <span className="modal-time-tag">Horario seleccionado</span>
+            <strong>{timeSelected.date}</strong>
+            <span>{timeSelected.hour}</span>
+          </div>
+        )}
 
         <div className="modal-body">
           {loading && <p className="modal-loading">Cargando servicios...</p>}
@@ -135,7 +151,7 @@ export default function ModalServicios({ onClose, onAgendar }) {
           )}
           <button
             className={`btn-modal-agendar ${selArray.length ? "enabled" : "disabled"}`}
-            onClick={() => selArray.length && onAgendar(selArray)}
+            onClick={handleAgendar}
             disabled={!selArray.length}
           >
             Agendar

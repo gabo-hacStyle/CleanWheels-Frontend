@@ -1,91 +1,116 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./Vehiculos.css";
+import ModalAgregarVehiculo from "./ModalAgregarVehiculo";
 
-// ── Mock data — reemplazar con fetch más adelante ────────────
-const MOCK_VEHICULOS = [
-  { id: 1, servicio: "Servicio A", vehiculo: "Toyota Corolla",  fecha: "2024-01-10", status: "Completed" },
-  { id: 2, servicio: "Servicio B", vehiculo: "Honda Civic",     fecha: "2024-01-12", status: "Active"    },
-  { id: 3, servicio: "Servicio C", vehiculo: "Mazda CX-5",      fecha: "2024-01-15", status: "Cancelled" },
-  { id: 4, servicio: "Servicio D", vehiculo: "Ford Explorer",   fecha: "2024-01-18", status: "Active"    },
-  { id: 5, servicio: "Servicio E", vehiculo: "Nissan Rogue",    fecha: "2024-01-20", status: "Completed" },
-  { id: 6, servicio: "Servicio F", vehiculo: "Chevrolet Spark", fecha: "2024-01-22", status: "Completed" },
-  { id: 7, servicio: "Servicio G", vehiculo: "Kia Sportage",    fecha: "2024-01-25", status: "Active"    },
-  { id: 8, servicio: "Servicio H", vehiculo: "Renault Duster",  fecha: "2024-01-28", status: "Completed" },
-  { id: 9, servicio: "Servicio I", vehiculo: "Volkswagen Golf", fecha: "2024-02-01", status: "Completed" },
-  { id: 10, servicio: "Servicio J", vehiculo: "Hyundai Tucson", fecha: "2024-02-03", status: "Cancelled" },
-  { id: 11, servicio: "Servicio K", vehiculo: "Suzuki Vitara",  fecha: "2024-02-05", status: "Active"    },
-  { id: 12, servicio: "Servicio L", vehiculo: "Jeep Compass",   fecha: "2024-02-08", status: "Completed" },
-];
-
-const STATUS_FILTERS = ["Todos", "Active", "Completed", "Cancelled"];
+const STATUS_FILTERS = ["Todos", "pendiente", "completado", "cancelado"];
 const PAGE_SIZE = 5;
 
 const STATUS_LABELS = {
-  Completed: "Completed",
-  Active:    "Active",
-  Cancelled: "Cancelled",
+  pendiente:  "Pendiente",
+  completado: "Completado",
+  cancelado:  "Cancelado",
+  // fallback para otros valores
 };
 
-export default function Vehiculos() {
-  const [search,     setSearch]     = useState("");
-  const [filter,     setFilter]     = useState("Todos");
-  const [page,       setPage]       = useState(1);
+function formatPrice(price) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(Number(price));
+}
 
-  // Stats
-  const total      = MOCK_VEHICULOS.length;
-  const completados = MOCK_VEHICULOS.filter(v => v.status === "Completed").length;
-  const activos     = MOCK_VEHICULOS.filter(v => v.status === "Active").length;
-  const cancelados  = MOCK_VEHICULOS.filter(v => v.status === "Cancelled").length;
+function getUserIdFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.sub || payload.id || payload.user_id || null;
+  } catch {
+    return null;
+  }
+}
 
-  // Filtered + searched list
+// ── Tab: Reservas ────────────────────────────────────────────
+function ReservasTab() {
+  const [reservas, setReservas]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+  const [search, setSearch]       = useState("");
+  const [filter, setFilter]       = useState("Todos");
+  const [page, setPage]           = useState(1);
+  const [expanded, setExpanded]   = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) { setError("No hay sesión iniciada"); setLoading(false); return; }
+
+    const userId = getUserIdFromToken(token);
+    if (!userId) { setError("No se pudo identificar el usuario"); setLoading(false); return; }
+
+    fetch(`http://localhost:8080/api/booking/reservations/user/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
+      .then(json => {
+        if (!json.success) throw new Error(json.message || "Error al cargar reservas");
+        setReservas(json.data);
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const total      = reservas.length;
+  const pendientes = reservas.filter(r => r.status === "pendiente").length;
+  const completados = reservas.filter(r => r.status === "completado").length;
+  const cancelados = reservas.filter(r => r.status === "cancelado").length;
+
   const filtered = useMemo(() => {
-    return MOCK_VEHICULOS.filter(v => {
-      const matchFilter = filter === "Todos" || v.status === filter;
+    return reservas.filter(r => {
+      const matchFilter = filter === "Todos" || r.status === filter;
       const q = search.toLowerCase();
-      const matchSearch = !q ||
-        v.servicio.toLowerCase().includes(q) ||
-        v.vehiculo.toLowerCase().includes(q) ||
-        v.fecha.includes(q) ||
-        v.status.toLowerCase().includes(q);
+      const matchSearch =
+        !q ||
+        r.placa?.toLowerCase().includes(q) ||
+        r.marca?.toLowerCase().includes(q) ||
+        r.modelo?.toLowerCase().includes(q) ||
+        r.date?.includes(q) ||
+        r.status?.toLowerCase().includes(q) ||
+        r.services?.some(s => s.name.toLowerCase().includes(q));
       return matchFilter && matchSearch;
     });
-  }, [search, filter]);
+  }, [reservas, search, filter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const paginated   = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const goTo        = p => setPage(Math.max(1, Math.min(p, totalPages)));
+  const handleFilter = f => { setFilter(f); setPage(1); };
+  const handleSearch = e => { setSearch(e.target.value); setPage(1); };
 
-  const goTo = (p) => setPage(Math.max(1, Math.min(p, totalPages)));
-
-  const handleFilter = (f) => { setFilter(f); setPage(1); };
-  const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
+  if (loading) return <p className="vehiculos-hint">Cargando reservas...</p>;
+  if (error)   return <p className="vehiculos-error">{error}</p>;
 
   return (
-    <div className="vehiculos-container">
-      <h1 className="vehiculos-title">Vehiculos</h1>
-
-      {/* Search */}
+    <>
       <input
         className="vehiculos-search"
         type="text"
-        placeholder="Buscar"
+        placeholder="Buscar reserva..."
         value={search}
         onChange={handleSearch}
       />
 
-      {/* Stats cards */}
       <div className="vehiculos-stats">
         <div className="stat-card">
           <span className="stat-label">Total</span>
           <span className="stat-value neutral">{total}</span>
         </div>
         <div className="stat-card">
-          <span className="stat-label">Completados</span>
-          <span className="stat-value green">{completados}</span>
+          <span className="stat-label">Pendientes</span>
+          <span className="stat-value amber">{pendientes}</span>
         </div>
         <div className="stat-card">
-          <span className="stat-label">Activo</span>
-          <span className="stat-value amber">{activos}</span>
+          <span className="stat-label">Completados</span>
+          <span className="stat-value green">{completados}</span>
         </div>
         <div className="stat-card">
           <span className="stat-label">Cancelados</span>
@@ -93,7 +118,6 @@ export default function Vehiculos() {
         </div>
       </div>
 
-      {/* Filter tabs */}
       <div className="vehiculos-filters">
         {STATUS_FILTERS.map(f => (
           <button
@@ -101,51 +125,77 @@ export default function Vehiculos() {
             className={`filter-btn ${filter === f ? "active" : ""}`}
             onClick={() => handleFilter(f)}
           >
-            {f}
+            {f === "Todos" ? "Todos" : STATUS_LABELS[f] ?? f}
           </button>
         ))}
       </div>
 
-      {/* Table */}
       <div className="vehiculos-table-wrapper">
         <table className="vehiculos-table">
           <thead>
             <tr>
-              <th>Servicio</th>
-              <th>Vehicle</th>
-              <th>Date</th>
-              <th>Status</th>
+              <th>Vehículo</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Servicios</th>
             </tr>
           </thead>
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={4} style={{ textAlign: "center", color: "#9ca3af", padding: "24px" }}>
+                <td colSpan={6} style={{ textAlign: "center", color: "#9ca3af", padding: "24px" }}>
                   Sin resultados
                 </td>
               </tr>
             ) : (
-              paginated.map(v => (
-                <tr key={v.id}>
-                  <td>{v.servicio}</td>
-                  <td>{v.vehiculo}</td>
-                  <td>{v.fecha}</td>
-                  <td>
-                    <span className={`status-badge status-${v.status.toLowerCase()}`}>
-                      {STATUS_LABELS[v.status]}
-                    </span>
-                  </td>
-                </tr>
+              paginated.map(r => (
+                <>
+                  <tr key={r.id}>
+                    <td>
+                      <span className="vehiculo-placa">{r.placa}</span>
+                      <span className="vehiculo-sub">{r.marca} {r.modelo}</span>
+                    </td>
+                    <td>{r.date}</td>
+                    <td>{r.time}</td>
+                    <td>{formatPrice(r.total_price)}</td>
+                    <td>
+                      <span className={`status-badge status-${r.status}`}>
+                        {STATUS_LABELS[r.status] ?? r.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="expand-btn"
+                        onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                        title="Ver servicios"
+                      >
+                        {expanded === r.id ? "▲" : "▼"} {r.services?.length ?? 0} servicio{r.services?.length !== 1 ? "s" : ""}
+                      </button>
+                    </td>
+                  </tr>
+                  {expanded === r.id && (
+                    <tr key={`${r.id}-expanded`} className="expanded-row">
+                      <td colSpan={6}>
+                        <div className="servicios-list">
+                          {r.services?.map(s => (
+                            <span key={s.id} className="servicio-chip">{s.name}</span>
+                          ))}
+                          <span className="duracion-chip">⏱ {r.total_duration} min</span>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))
             )}
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div className="vehiculos-pagination">
           <button className="page-btn" onClick={() => goTo(1)} disabled={currentPage === 1}>«</button>
           <button className="page-btn" onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}>‹</button>
-
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
             <button
               key={p}
@@ -155,11 +205,134 @@ export default function Vehiculos() {
               {p}
             </button>
           ))}
-
           <button className="page-btn" onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages}>›</button>
           <button className="page-btn" onClick={() => goTo(totalPages)} disabled={currentPage === totalPages}>»</button>
         </div>
       </div>
+    </>
+  );
+}
+
+// ── Tab: Vehículos ───────────────────────────────────────────
+function VehiculosTab() {
+  const [vehiculos, setVehiculos]   = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(null);
+  const [search, setSearch]         = useState("");
+  const [modalOpen, setModalOpen]   = useState(false);
+
+  const fetchVehiculos = () => {
+    const token = localStorage.getItem("token");
+    if (!token) { setError("No hay sesión iniciada"); setLoading(false); return; }
+
+    const userId = getUserIdFromToken(token);
+    if (!userId) { setError("No se pudo identificar el usuario"); setLoading(false); return; }
+
+    setLoading(true);
+    fetch(`http://localhost:8080/api/booking/vehicles/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
+      .then(json => {
+        if (!json.success) throw new Error(json.message || "Error al cargar vehículos");
+        setVehiculos(json.data);
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchVehiculos(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    if (!q) return vehiculos;
+    return vehiculos.filter(v =>
+      v.placa?.toLowerCase().includes(q) ||
+      v.marca?.toLowerCase().includes(q) ||
+      v.modelo?.toLowerCase().includes(q)
+    );
+  }, [vehiculos, search]);
+
+  if (loading) return <p className="vehiculos-hint">Cargando vehículos...</p>;
+  if (error)   return <p className="vehiculos-error">{error}</p>;
+
+  return (
+    <>
+      <div className="vehiculos-tab-header">
+        <input
+          className="vehiculos-search"
+          type="text"
+          placeholder="Buscar vehículo..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ marginBottom: 0 }}
+        />
+        <button className="btn-agregar-vehiculo" onClick={() => setModalOpen(true)}>
+          + Agregar vehículo
+        </button>
+      </div>
+
+      <div className="vehiculos-stats" style={{ marginTop: 20 }}>
+        <div className="stat-card">
+          <span className="stat-label">Total registrados</span>
+          <span className="stat-value neutral">{vehiculos.length}</span>
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="vehiculos-hint">
+          {vehiculos.length === 0 ? "No tienes vehículos registrados." : "Sin resultados para tu búsqueda."}
+        </p>
+      ) : (
+        <div className="vehiculos-cards-grid">
+          {filtered.map(v => (
+            <div key={v.id} className="vehiculo-card">
+              <div className="vehiculo-card-icon">🚗</div>
+              <div className="vehiculo-card-info">
+                <span className="vehiculo-placa-big">{v.placa}</span>
+                <span className="vehiculo-modelo-big">{v.marca} · {v.modelo}</span>
+                <span className="vehiculo-fecha">
+                  Registrado: {new Date(v.created_at).toLocaleDateString("es-CO")}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <ModalAgregarVehiculo
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={() => { setModalOpen(false); fetchVehiculos(); }}
+      />
+    </>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────
+export default function Vehiculos() {
+  const [tab, setTab] = useState("reservas");
+
+  return (
+    <div className="vehiculos-container">
+      <h1 className="vehiculos-title">Mi Cuenta</h1>
+
+      <div className="vehiculos-tabs">
+        <button
+          className={`tab-btn ${tab === "reservas" ? "active" : ""}`}
+          onClick={() => setTab("reservas")}
+        >
+          📅 Mis Reservas
+        </button>
+        <button
+          className={`tab-btn ${tab === "vehiculos" ? "active" : ""}`}
+          onClick={() => setTab("vehiculos")}
+        >
+          🚗 Mis Vehículos
+        </button>
+      </div>
+
+      {tab === "reservas" ? <ReservasTab /> : <VehiculosTab />}
     </div>
   );
 }
