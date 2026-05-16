@@ -18,7 +18,14 @@ const PAGES = {
 }
 
 export default function Admin() {
-  const [activePage, setActivePage] = useState("reservas")
+  const [activePage, setActivePage] = useState(() => {
+    return localStorage.getItem("activePage") || "reservas"
+  })
+
+  const handleNavigate = (page) => {
+    setActivePage(page)
+    localStorage.setItem("activePage", page)
+  }
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -39,7 +46,7 @@ export default function Admin() {
 
   return (
     <div className="app-layout">
-      <Sidebar activePage={activePage} onNavigate={setActivePage} onLogout={handleLogout} />
+      <Sidebar activePage={activePage} onNavigate={handleNavigate} onLogout={handleLogout} />
       <main className="app-main">
         {PAGES[activePage]}
       </main>

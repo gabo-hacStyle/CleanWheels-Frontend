@@ -9,7 +9,7 @@
 }
 
 .reportes_titulo {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
   color: var(--text-primary);
   margin-bottom: 25px;
@@ -141,4 +141,131 @@
 
 .reportes_tabla tr:hover {
   background: var(--bg-nav-hover);
+}
+.reportes_graficas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.grafica_grande {
+  grid-column: 1 / 2;
+}
+
+.grafica_chica {
+  grid-column: 2 / 3;
+}
+
+.grafica_full {
+  grid-column: 1 / -1;
+}
+
+.grafica_card {
+  background-color:  var(--bg-card);
+  border-radius: 12px;
+  padding: 22px 20px 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grafica_card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.grafica_titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.grafica_sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0 0 16px;
+}
+
+.grafica_empty {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.grafica_leyenda {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  align-items: center;
+}
+
+.leyenda_dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.tooltip_custom {
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.tooltip_label {
+  color: var(--text-secondary);
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
+.tooltip_valor {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.tooltip_sub {
+  color: #22c55e;
+  margin: 0;
+  font-size: 12px;
+}
+
+.reportes_personalizado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.reportes_personalizado input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .reportes_graficas {
+    grid-template-columns: 1fr;
+  }
+
+  .grafica_grande,
+  .grafica_chica,
+  .grafica_full {
+    grid-column: 1 / -1;
+  }
 }

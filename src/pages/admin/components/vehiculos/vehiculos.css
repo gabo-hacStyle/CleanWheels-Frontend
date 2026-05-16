@@ -1,0 +1,403 @@
+﻿.vehiculos {
+  min-height: 100vh;
+}
+
+.vehiculos_titulo {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-primary);
+ margin-bottom: 25px;
+}
+
+.vehiculos_subtitulo {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 24px;
+}
+
+.vehiculos_search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vehiculos_search input {
+  padding: 8px 16px;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  width: 280px;
+  max-width: 100%;
+  outline: none;
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s ease;
+}
+
+.vehiculos_search input:focus {
+  border-color: #00E5FF;
+}
+
+.vehiculos_btn_buscar {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1px solid #00E5FF;
+  background-color: #00E5FF;
+  color: #1C1C1C !important;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.vehiculos_btn_buscar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vehiculos_btn_limpiar {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.vehiculos_btn_limpiar:hover {
+  border-color: #00E5FF;
+}
+
+.vehiculos_empty {
+  background-color: var(--bg-feedback-card);
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.vehiculos_empty_icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.vehiculos_empty p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+.vehiculos_error {
+  background: #fce4ec;
+  border: 1px solid #ef9a9a;
+  border-radius: 8px;
+  padding: 12px 18px;
+  color: #b71c1c;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.vehiculos_result_info {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.vehiculos_result_info strong {
+  color: var(--text-primary);
+}
+
+.vehiculos_stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.vehiculos_stat_card {
+  background-color: var(--bg-feedback-card);
+  border-radius: 12px;
+  padding: 18px 24px;
+  flex: 1;
+  min-width: 100px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vehiculos_stat_card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.vehiculos_stat_label {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.vehiculos_stat_value {
+  margin: 6px 0 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.vehiculos_stat_value.pendiente  { color: #f59e0b; }
+.vehiculos_stat_value.confirmada { color: #22c55e; }
+.vehiculos_stat_value.finalizada { color: #00E5FF; }
+.vehiculos_stat_value.cancelada  { color: #ef4444; }
+
+.vehiculos_filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filtro_btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filtro_btn.activo {
+  background-color: #00E5FF;
+  border-color: #00E5FF;
+  color: #1C1C1C;
+  font-weight: bold;
+}
+
+.filtro_btn:hover {
+  border-color: #00E5FF;
+}
+
+.filtro_btn_count {
+  margin-left: 5px;
+  font-size: 11px;
+  opacity: 0.65;
+  font-weight: normal;
+}
+
+.vehiculos_table_wrapper {
+  background-color: var(--bg-feedback-card);
+  border-radius: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vehiculos_table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 580px;
+}
+
+.vehiculos_table thead tr {
+  background-color: var(--bg-nav);
+}
+
+.vehiculos_table thead th {
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vehiculos_table tbody tr {
+  border-bottom: 1px solid var(--border-input);
+  transition: background 0.15s ease;
+}
+
+.vehiculos_table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.vehiculos_table tbody tr:hover {
+  background-color: var(--bg-nav-hover);
+}
+
+.vehiculos_table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.vehiculos_table td.services_col {
+  position: relative;
+}
+
+.vehicle_plate {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.vehicle_info {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.status_badge {
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.status_confirmada { background: #dcfce7; color: #16a34a; }
+.status_pendiente  { background: #fef9c3; color: #ca8a04; }
+.status_finalizada { background: #cffafe; color: #0e7490; }
+.status_cancelada  { background: #fee2e2; color: #dc2626; }
+
+.vehiculos_table_empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.services_cell {
+  position: relative;
+}
+
+.services_toggle {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.services_toggle:hover {
+  border-color: #00E5FF;
+}
+
+.services_dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+}
+
+.service_tag {
+  background: var(--bg-feedback-card);
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.service_name {
+  font-weight: 600;
+}
+
+.service_meta {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.no_services {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .vehiculos_titulo {
+    font-size: 22px;
+  }
+
+  .vehiculos_search input {
+    width: 100%;
+  }
+
+  .vehiculos_search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vehiculos_btn_buscar,
+  .vehiculos_btn_limpiar {
+    width: 100%;
+    text-align: center;
+  }
+
+  .vehiculos_stats {
+    gap: 10px;
+  }
+
+  .vehiculos_stat_card {
+    padding: 14px 16px;
+    min-width: calc(50% - 5px);
+  }
+
+  .vehiculos_stat_value {
+    font-size: 22px;
+  }
+
+  .vehiculos_filtros {
+    gap: 8px;
+  }
+
+  .filtro_btn {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+
+  .vehiculos_empty {
+    padding: 40px 20px;
+  }
+
+  .services_dropdown {
+    right: 0;
+    left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .vehiculos_stat_card {
+    min-width: 100%;
+  }
+}

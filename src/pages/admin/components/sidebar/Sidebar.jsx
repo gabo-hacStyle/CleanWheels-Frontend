@@ -74,7 +74,16 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ activePage, onNavigate, onLogout }) {
-  const [darkMode, setDarkMode] = useState(false);
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      document.body.classList.add("dark");
+      return true;
+    }
+    return false;
+  });
+
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
@@ -88,8 +97,10 @@ export default function Sidebar({ activePage, onNavigate, onLogout }) {
   }, []);
 
   const toggleTheme = () => {
-    setDarkMode(prev => !prev);
-    document.body.classList.toggle("dark");
+    const next = !darkMode;
+    setDarkMode(next);
+    document.body.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
   };
   const navigate = useNavigate();
   return (
@@ -138,7 +149,7 @@ export default function Sidebar({ activePage, onNavigate, onLogout }) {
           <span className="sidebar-nav-icon">{darkMode ? "☀️" : "🌙"}</span>
           <span className="sidebar-nav-label">{darkMode ? "Modo claro" : "Modo oscuro"}</span>
         </button>
-       <button className="sidebar-logout" onClick={onLogout}>
+        <button className="sidebar-logout" onClick={onLogout}>
           <span className="sidebar-nav-icon">
             <LogoutIcon />
           </span>
