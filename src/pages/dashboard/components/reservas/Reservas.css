@@ -129,7 +129,7 @@
 .reservas-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: 130px repeat(5, 1fr);
+  grid-template-columns: 130px repeat(6, 1fr);
   gap: 4px;
 }
 

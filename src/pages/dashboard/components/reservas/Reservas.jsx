@@ -167,7 +167,7 @@ export default function Reservas() {
 
   return (
     <div className="reservas-container">
-      <h1 className="reservas-title">Reservaciones</h1>
+      <h1 className="reservas-title">Reservar horario</h1>
       <p className="reservas-subtitle">Maneja las reservas</p>
 
       <div className="reservas-controls">
