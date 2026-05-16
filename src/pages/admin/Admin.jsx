@@ -1,6 +1,6 @@
 import Sidebar from "./components/sidebar/Sidebar.jsx"
 import Reservas from "../dashboard/components/reservas/Reservas.jsx"
-//import Vehiculos from "./components/vehiculos/vehiculos.jsx"
+import Vehiculos from "./components/vehiculos/vehiculos.jsx"
 import Reportes from "./components/reportes/Reportes.jsx"
 import Feedback from "./components/feedback/Feedback.jsx"
 import Servicios from "./components/servicios/Servicios.jsx"
@@ -12,7 +12,7 @@ import "./Admin.css"
 
 const PAGES = {
   reservas: <Reservas />,
-  // vehiculos: <Vehiculos />,
+  Historial: <Vehiculos />,
   reportes: <Reportes />,
   feedback: <Feedback />,
   servicios: <Servicios />,
@@ -21,7 +21,14 @@ const PAGES = {
 }
 
 export default function Admin() {
-  const [activePage, setActivePage] = useState("reservas")
+  const [activePage, setActivePage] = useState(() => {
+    return localStorage.getItem("activePage") || "reservas"
+  })
+
+  const handleNavigate = (page) => {
+    setActivePage(page)
+    localStorage.setItem("activePage", page)
+  }
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -42,7 +49,7 @@ export default function Admin() {
 
   return (
     <div className="app-layout">
-      <Sidebar activePage={activePage} onNavigate={setActivePage} onLogout={handleLogout} />
+      <Sidebar activePage={activePage} onNavigate={handleNavigate} onLogout={handleLogout} />
       <main className="app-main">
         {PAGES[activePage]}
       </main>

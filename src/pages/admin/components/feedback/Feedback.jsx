@@ -99,7 +99,7 @@ function Feedback() {
       )}
 
       <div className="feedback_filtros">
-        {['Día', 'Semana', 'Mes', 'Custom'].map((f) => (
+        {['Día', 'Semana', 'Mes', 'Personalizado'].map((f) => (
           <button
             key={f}
             className={`filtro_btn ${filtro === f ? 'activo' : ''}`}
@@ -110,7 +110,7 @@ function Feedback() {
         ))}
       </div>
 
-      {filtro === 'Custom' && (
+      {filtro === 'Personalizado' && (
         <div className="feedback_custom">
           <input
             type="date"
