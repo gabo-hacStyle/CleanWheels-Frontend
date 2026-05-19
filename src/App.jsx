@@ -7,6 +7,7 @@ import Catalog from './pages/catalog/Catalog'
 import Admin from './pages/admin/Admin'
 import Callback from './pages/callback/Callback'
 import ProtectedRoute from './components/ProtectedRoute'
+import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 
 export default function App() {
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/google/callback" element={<Callback />} />
+        <Route path="/feedback/:id" element={<FeedbackPage />} />
         <Route path="/dashboard" element={
           <ProtectedRoute allowedRoles={["CLIENT"]}>
             <Dashboard />
