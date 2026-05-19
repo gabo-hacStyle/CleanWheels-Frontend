@@ -7,11 +7,11 @@ import "./Dashboard.css";
 
 const PAGES = {
   reservas: <Reservas />,
-  vehiculos: <Vehiculos />,
+  dashboard: <Vehiculos />,
 };
 
 export default function Dashboard() {
-  const [activePage, setActivePage] = useState("reservas");
+  const [activePage, setActivePage] = useState("dashboard");
   const navigate = useNavigate();
 
   const handleLogout = async () => {

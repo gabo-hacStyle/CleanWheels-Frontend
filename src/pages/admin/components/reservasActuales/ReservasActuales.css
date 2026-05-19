@@ -1,0 +1,378 @@
+.reservas-container {
+  padding: 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.reservas-titulo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.reservas-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border: 1px solid #f5c6cb;
+}
+
+.reservas-vacio {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 16px;
+  padding: 40px 20px;
+}
+
+/* Lista de reservas */
+.reservas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Item de reserva */
+.reserva-item {
+  display: flex;
+  align-items: stretch;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.reserva-item:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Indicador parpadeante */
+.reserva-indicador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  background-color: var(--bg-avatar);
+  flex-shrink: 0;
+}
+
+.indicador-circulo {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  animation: parpadeo 1.5s ease-in-out infinite;
+}
+
+@keyframes parpadeo {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  }
+}
+
+/* Contenido principal */
+.reserva-contenido {
+  flex: 1;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.reserva-header {
+  margin-bottom: 10px;
+}
+
+.reserva-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reserva-placa {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.reserva-vehiculo {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.reserva-datetime {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* Servicios */
+.reserva-servicios {
+  margin: 10px 0;
+  font-size: 13px;
+}
+
+.reserva-servicios strong {
+  display: block;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.servicios-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.servicios-lista li {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: var(--text-nav-active);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Detalles */
+.reserva-detalles {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.reserva-duracion {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.reserva-precio {
+  color: #10b981;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Botón de completar */
+.btn-completar {
+  flex-shrink: 0;
+  padding: 12px 24px;
+  margin: 15px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+  height: fit-content;
+  align-self: center;
+}
+
+.btn-completar:hover {
+  background-color: #45a049;
+}
+
+.btn-completar:active {
+  transform: scale(0.98);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-contenido h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.modal-contenido p {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Resumen en modal */
+.modal-resumen {
+  background-color: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+}
+
+.modal-resumen p {
+  margin: 10px 0;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.modal-resumen strong {
+  color: var(--text-primary);
+}
+
+/* Botones del modal */
+.modal-botones {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancelar {
+  background-color: var(--bg-nav-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-cancelar:hover:not(:disabled) {
+  background-color: var(--bg-secondary);
+}
+
+.btn-confirmar {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-confirmar:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.btn-cancelar:disabled,
+.btn-confirmar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reserva-item {
+    flex-direction: column;
+  }
+
+  .reserva-indicador {
+    width: 100%;
+    height: 4px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-left: 20px;
+  }
+
+  .indicador-circulo {
+    width: 12px;
+    height: 12px;
+  }
+
+  .btn-completar {
+    width: 100%;
+    margin: 10px;
+  }
+
+  .reserva-detalles {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .servicios-lista {
+    gap: 5px;
+  }
+
+  .modal-contenido {
+    max-width: 90%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .reservas-container {
+    padding: 10px;
+  }
+
+  .reserva-contenido {
+    padding: 10px 15px;
+  }
+
+  .reserva-placa {
+    font-size: 16px;
+  }
+
+  .reserva-servicios {
+    font-size: 12px;
+  }
+
+  .modal-contenido {
+    padding: 20px;
+  }
+
+  .modal-botones {
+    flex-direction: column;
+  }
+}

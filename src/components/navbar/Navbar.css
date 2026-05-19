@@ -16,6 +16,7 @@
     align-items: center;
     text-decoration: none;
     position: relative;
+    cursor: pointer;
 }
 .navbar-left .logo img {
     height: 60px;

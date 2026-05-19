@@ -40,8 +40,9 @@ const UserIcon = () => (
 );
 
 const NAV_ITEMS = [
-  { id: "reservas",  label: "Reservas",  Icon: CalendarIcon },
-  { id: "vehiculos", label: "Vehículos", Icon: TruckIcon },
+  { id: "dashboard", label: "Mi cuenta", Icon: TruckIcon },
+
+  { id: "reservas",  label: "Disponibilidad y agendar",  Icon: CalendarIcon },
 ];
 
 export default function Sidebar({ activePage, onNavigate, onLogout }) {
