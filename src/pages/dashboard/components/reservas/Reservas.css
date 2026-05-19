@@ -281,3 +281,15 @@
     text-align: left;
   }
 }
+
+/* ── Smooth Loading Animation ────────────────────────────────────────── */
+.reservas-grid {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.reservas-grid.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}

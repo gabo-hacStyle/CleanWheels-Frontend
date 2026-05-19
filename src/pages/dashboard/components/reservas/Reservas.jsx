@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./Reservas.css";
 import ModalServicios from "../servicios/ModalServicios";
 import ModalFormReserva from "../formreserva/ModalFormReserva";
@@ -84,6 +84,7 @@ export default function Reservas() {
   const [modal, setModal] = useState(null);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
   const [timeSelected, setTimeSelected] = useState(null);
+  const weekPickerInputRef = useRef(null);
 
   const weekEnd = addDaysToDateInput(weekStart, 4);
   const days = calendar?.days ?? [];
@@ -128,6 +129,12 @@ export default function Reservas() {
 
   const handleWeekChange = (event) => {
     setWeekStart(getMondayFromDate(event.target.value));
+    // Mantener el picker abierto después de seleccionar
+    if (weekPickerInputRef.current) {
+      setTimeout(() => {
+        weekPickerInputRef.current?.showPicker?.();
+      }, 50);
+    }
   };
 
   const handleGoPreviousWeek = () => {
@@ -157,10 +164,6 @@ export default function Reservas() {
     setTimeSelected(null);
   };
 
-  if (loadingCalendar) {
-    return <div className="reservas-container">Cargando calendario...</div>;
-  }
-
   if (errorCalendar) {
     return <div className="reservas-container">Error: {errorCalendar}</div>;
   }
@@ -176,6 +179,7 @@ export default function Reservas() {
           <div className="week-picker">
             <span className="week-picker-label">Semana del lunes</span>
             <input
+              ref={weekPickerInputRef}
               type="date"
               className="week-picker-input"
               value={weekStart}
@@ -194,7 +198,7 @@ export default function Reservas() {
 
       <div className="reservas-grid-wrapper">
         <button className="arrow-btn" onClick={handleGoPreviousWeek}>‹</button>
-        <div className="reservas-grid">
+        <div className={`reservas-grid ${!loadingCalendar ? 'loaded' : ''}`}>
           <div className="cell header-cell time-col">Hora | Día</div>
           {days.map((day) => (
             <div key={day.date} className="cell header-cell day-col">

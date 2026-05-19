@@ -185,6 +185,10 @@ export default function ModalFormReserva({ servicios, onClose, onConfirmada, onV
         body: JSON.stringify(body),
       });
       const json = await r.json();
+      console.log(json);
+      if(json.error && json.error.includes("(hora Colombia) no está disponible. Los 3 cupos están ocupados durante ese período.")) {
+        throw new Error("Los servicios seleccionados alcanzan a tomar tiempo de un horario que ya está lleno. Por favor, elige otro horario o reduce la duración total de los servicios.");
+      }
 
       if (r.status === 422) {
         throw new Error("El horario seleccionado ya no está disponible.");
