@@ -91,14 +91,6 @@ function ReservasTab() {
 
   return (
     <>
-      <input
-        className="vehiculos-search"
-        type="text"
-        placeholder="Buscar reserva..."
-        value={search}
-        onChange={handleSearch}
-      />
-
       <div className="vehiculos-stats">
         <div className="stat-card">
           <span className="stat-label">Total</span>
