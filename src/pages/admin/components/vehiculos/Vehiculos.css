@@ -475,3 +475,129 @@
     min-width: 100%;
   }
 }
+
+.btn_cancelar {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn_cancelar:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.btn_reactivar {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #22c55e;
+  background: transparent;
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn_reactivar:hover {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.acciones_cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action_modal_backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+}
+
+.action_modal_box {
+  background: var(--bg-card);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: modal-in 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action_modal_title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.action_modal_msg {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.action_modal_footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action_modal_footer button {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.action_modal_footer button:hover {
+  opacity: 0.85;
+}
+
+.btn_modal_cancel {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-input) !important;
+}
+
+.btn_modal_confirm_red {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn_modal_confirm_green {
+  background: #22c55e;
+  color: #fff;
+}
+
+.btn_modal_ok {
+  background: #00E5FF;
+  color: #1C1C1C;
+}
+
+@media (max-width: 768px) {
+  .acciones_cell {
+    justify-content: flex-end;
+  }
+}
