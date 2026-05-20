@@ -1,4 +1,3 @@
-/* ── Backdrop ── */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -10,7 +9,6 @@
   padding: 16px;
 }
 
-/* ── Box ── */
 .modal-box {
   background: #ffffff;
   border-radius: 14px;
@@ -23,12 +21,16 @@
   animation: modal-in 0.2s ease;
 }
 
+body.dark .modal-box {
+  background: var(--bg-card);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
 @keyframes modal-in {
   from { opacity: 0; transform: scale(0.95) translateY(8px); }
   to   { opacity: 1; transform: scale(1)    translateY(0);   }
 }
 
-/* ── Header ── */
 .modal-header {
   display: flex;
   align-items: center;
@@ -46,6 +48,10 @@
   letter-spacing: 0.02em;
 }
 
+body.dark .modal-title {
+  color: var(--text-primary);
+}
+
 .modal-close {
   background: none;
   border: 1px solid #d1d5db;
@@ -61,9 +67,19 @@
   transition: background 0.15s;
 }
 
+body.dark .modal-close {
+  border-color: var(--border-input);
+  color: var(--text-secondary);
+}
+
 .modal-close:hover {
   background: #f3f4f6;
   color: #111827;
+}
+
+body.dark .modal-close:hover {
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
 }
 
 .modal-time-selected {
@@ -79,6 +95,12 @@
   color: #0f172a;
 }
 
+body.dark .modal-time-selected {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(0, 229, 255, 0.04) 100%);
+  border-color: rgba(0, 229, 255, 0.25);
+  color: var(--text-primary);
+}
+
 .modal-time-tag {
   font-size: 11px;
   font-weight: 800;
@@ -87,7 +109,10 @@
   color: #0891b2;
 }
 
-/* ── Body ── */
+body.dark .modal-time-tag {
+  color: #00E5FF;
+}
+
 .modal-body {
   flex: 1;
   overflow-y: auto;
@@ -97,7 +122,6 @@
   gap: 20px;
 }
 
-/* ── Category ── */
 .modal-category-title {
   display: flex;
   align-items: center;
@@ -110,6 +134,11 @@
   border-bottom: 2px solid #1C1C1C;
 }
 
+body.dark .modal-category-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
 .badge-multiple {
   font-size: 11px;
   font-weight: 600;
@@ -119,14 +148,17 @@
   border-radius: 20px;
 }
 
-/* ── Grid ── */
+body.dark .badge-multiple {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
 .modal-services-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
-/* ── Service card ── */
 .service-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -135,6 +167,12 @@
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+body.dark .service-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .service-card:hover {
@@ -149,6 +187,10 @@
   transform: scale(1.02);
 }
 
+body.dark .service-card.selected {
+  background: rgba(0, 229, 255, 0.08);
+}
+
 .service-card.disabled-card {
   opacity: 0.38;
   cursor: pointer;
@@ -161,9 +203,18 @@
   color: #111827;
 }
 
+body.dark .service-card-name {
+  color: var(--text-primary);
+}
+
 .service-card.selected .service-card-name,
 .service-card.selected .service-card-price {
   color: #0891b2;
+}
+
+body.dark .service-card.selected .service-card-name,
+body.dark .service-card.selected .service-card-price {
+  color: #00E5FF;
 }
 
 .service-card-desc {
@@ -173,8 +224,13 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+body.dark .service-card-desc {
+  color: var(--text-tertiary);
 }
 
 .service-card-price {
@@ -184,13 +240,20 @@
   color: #059669;
 }
 
+body.dark .service-card-price {
+  color: #10b981;
+}
+
 .service-card-duration {
   margin: 0;
   font-size: 11px;
   color: #9ca3af;
 }
 
-/* ── Footer ── */
+body.dark .service-card-duration {
+  color: var(--text-tertiary);
+}
+
 .modal-footer {
   padding: 14px 20px;
   border-top: 1px solid #e5e7eb;
@@ -199,6 +262,10 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+}
+
+body.dark .modal-footer {
+  border-top-color: var(--border-color);
 }
 
 .modal-resumen {
@@ -220,13 +287,21 @@
   border: 1px solid #00E5FF;
 }
 
+body.dark .resumen-chip {
+  background: rgba(0, 229, 255, 0.1);
+  color: #00E5FF;
+}
+
 .resumen-total {
   font-size: 13px;
   font-weight: 700;
   color: #111827;
 }
 
-/* ── Botón ── */
+body.dark .resumen-total {
+  color: var(--text-primary);
+}
+
 .btn-modal-agendar {
   padding: 9px 48px;
   border-radius: 8px;
@@ -250,4 +325,9 @@
   background: #e5e7eb;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+body.dark .btn-modal-agendar.disabled {
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
 }

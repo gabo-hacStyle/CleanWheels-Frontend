@@ -20,10 +20,11 @@ const Footer = () => {
                 <li>Email</li>
             </ul>
         </div>
-    </footer>
-    <div className='footer-bottom'>
+         <div className='footer-bottom'>
         <p>&copy; 2026 Grupo Aguapanelita. Todos los derechos reservados</p>
     </div>
+    </footer>
+   
     </>
   )
 }

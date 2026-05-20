@@ -1,6 +1,5 @@
 import "./Sidebar.css";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const CalendarIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -39,24 +38,59 @@ const UserIcon = () => (
   </svg>
 );
 
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5" />
+    <line x1="12" y1="1" x2="12" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="23" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="1" y1="12" x2="3" y2="12" />
+    <line x1="21" y1="12" x2="23" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
+
 const NAV_ITEMS = [
   { id: "dashboard", label: "Mi cuenta", Icon: TruckIcon },
-
   { id: "reservas",  label: "Disponibilidad y agendar",  Icon: CalendarIcon },
 ];
 
 export default function Sidebar({ activePage, onNavigate, onLogout }) {
   const [usuario, setUsuario] = useState(null);
-  
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      fetch("http://localhost:8080/api/auth/me", {
-        headers: { "Authorization": `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => setUsuario(data))
-        .catch(err => console.error(err));
-    }, []);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:8080/api/auth/me", {
+      headers: { "Authorization": `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setUsuario(data))
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
   return (
     <aside className="sidebar">
 
@@ -87,9 +121,24 @@ export default function Sidebar({ activePage, onNavigate, onLogout }) {
         ))}
       </nav>
 
-      {/* Log out */}
+      {/* Footer Actions */}
       <div className="sidebar-footer">
-       <button className="sidebar-logout" onClick={onLogout}>
+        {/* Toggle Modo Oscuro */}
+        <button 
+          className="sidebar-theme-toggle" 
+          onClick={() => setDarkMode(!darkMode)}
+          title={darkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
+        >
+          <span className="sidebar-nav-icon">
+            {darkMode ? <SunIcon /> : <MoonIcon />}
+          </span>
+          <span className="sidebar-nav-label">
+            {darkMode ? "Modo Claro" : "Modo Oscuro"}
+          </span>
+        </button>
+
+        {/* Log out */}
+        <button className="sidebar-logout" onClick={onLogout}>
           <span className="sidebar-nav-icon">
             <LogoutIcon />
           </span>

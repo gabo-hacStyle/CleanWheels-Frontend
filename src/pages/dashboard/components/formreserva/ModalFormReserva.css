@@ -1,8 +1,7 @@
-/* ── Backdrop ── */
 .mfr-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.65); 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,16 +9,16 @@
   padding: 16px;
 }
 
-/* ── Box ── */
 .mfr-box {
-  background: #ffffff;
+  background: var(--bg-card); 
+  border: 1px solid var(--border-color); 
   border-radius: 14px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: mfr-in 0.2s ease;
 }
 
@@ -28,7 +27,6 @@
   to   { opacity: 1; transform: scale(1)    translateY(0);   }
 }
 
-/* ── Header ── */
 .mfr-header {
   display: flex;
   align-items: center;
@@ -50,7 +48,7 @@
   padding: 0;
   font-size: 12px;
   font-weight: 600;
-  color: #0891b2;
+  color: #00E5FF; 
   cursor: pointer;
   text-align: left;
   width: fit-content;
@@ -62,27 +60,30 @@
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary); 
   letter-spacing: 0.02em;
 }
 
 .mfr-close {
   background: none;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input);
   border-radius: 6px;
   width: 28px;
   height: 28px;
   font-size: 13px;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.mfr-close:hover { background: #f3f4f6; color: #111827; }
+.mfr-close:hover { 
+  background: var(--bg-nav-hover); 
+  color: var(--text-primary); 
+}
 
-/* ── Body ── */
+
 .mfr-body {
   flex: 1;
   overflow-y: auto;
@@ -97,13 +98,12 @@
 .mfr-label {
   font-size: 13px;
   font-weight: 700;
-  color: #1C1C1C;
+  color: var(--text-primary); 
   margin: 0;
 }
 
-/* ── Tabla de servicios ── */
 .mfr-servicios-tabla {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-input); 
   border-radius: 8px;
   overflow: hidden;
 }
@@ -113,7 +113,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 9px 12px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color); 
 }
 
 .mfr-servicio-info {
@@ -125,18 +125,18 @@
 .mfr-servicio-nombre {
   font-size: 13px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary); 
 }
 
 .mfr-servicio-duracion {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-tertiary); 
 }
 
 .mfr-servicio-precio {
   font-size: 13px;
   font-weight: 600;
-  color: #059669;
+  color: #22c55e; 
 }
 
 .mfr-servicios-total {
@@ -144,7 +144,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background: #f9fafb;
+  background: var(--bg-secondary); 
 }
 
 .mfr-total-left {
@@ -156,40 +156,47 @@
 .mfr-total-left span:first-child {
   font-size: 13px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); 
 }
 
 .mfr-total-duracion {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-tertiary);
 }
 
 .mfr-total-precio {
   font-size: 15px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
 }
 
-/* ── Sin vehículos ── */
 .mfr-no-vehiculos {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fee2e2;
-  border: 1px solid #fca5a5;
+  background: rgba(239, 68, 68, 0.15); 
+  border: 1px solid #ef4444;
   border-radius: 8px;
   padding: 10px 12px;
 }
 
 .mfr-no-vehiculos .mfr-hint {
-  color: #991b1b;
+  color: #fca5a5;
   font-weight: 600;
+}
+
+body:not(.dark) .mfr-no-vehiculos {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+body:not(.dark) .mfr-no-vehiculos .mfr-hint {
+  color: #991b1b;
 }
 
 .mfr-btn-agregar-vehiculo {
   padding: 6px 14px;
   background: #00E5FF;
-  color: #111827;
+  color: #1C1C1C;
   border: none;
   border-radius: 7px;
   font-size: 12px;
@@ -204,14 +211,13 @@
   background: #00c8e0;
 }
 
-/* ── Select vehículo ── */
 .mfr-select {
   padding: 10px 36px 10px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input); 
   border-radius: 8px;
   font-size: 14px;
-  color: #111827;
-  background-color: #ffffff;
+  color: var(--text-primary); 
+  background-color: var(--bg-card); 
   outline: none;
   cursor: pointer;
   appearance: none;
@@ -222,17 +228,28 @@
   transition: border-color 0.15s;
 }
 
+body.dark .mfr-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300E5FF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); 
+}
+
 .mfr-select:focus { border-color: #00E5FF; }
+
 
 .mfr-fixed-schedule {
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #a5f3fc;
-  background: linear-gradient(135deg, #ecfeff 0%, #f0fdfa 100%);
+  border: 1px solid rgba(0, 229, 255, 0.4); 
+  background: rgba(0, 229, 255, 0.08); 
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  color: var(--text-primary);
+}
+
+body:not(.dark) .mfr-fixed-schedule {
+  border: 1px solid #a5f3fc;
+  background: linear-gradient(135deg, #ecfeff 0%, #f0fdfa 100%);
   color: #0f172a;
 }
 
@@ -244,6 +261,10 @@
 .mfr-fixed-schedule span {
   font-size: 13px;
   font-weight: 700;
+  color: #00E5FF;
+}
+
+body:not(.dark) .mfr-fixed-schedule span {
   color: #0891b2;
 }
 
@@ -256,24 +277,23 @@
 }
 
 .mfr-nav-btn {
-  background: none;
-  border: 1px solid #d1d5db;
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
   border-radius: 6px;
   width: 28px;
   height: 28px;
   font-size: 16px;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
 }
 
-.mfr-nav-btn:hover:not(:disabled) { background: #f3f4f6; }
-.mfr-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.mfr-nav-btn:hover:not(:disabled) { background: var(--bg-nav-hover); }
+.mfr-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-/* ── Grid días ── */
 .mfr-dias-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -284,30 +304,38 @@
   padding: 8px 4px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
+  background: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: all 0.15s;
   white-space: nowrap;
 }
 
-.mfr-dia-btn:hover:not(.dis) { border-color: #00E5FF; }
+.mfr-dia-btn:hover:not(.dis) { 
+  border-color: #00E5FF; 
+  color: var(--text-primary);
+}
 
 .mfr-dia-btn.sel {
   border: 2px solid #00E5FF;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00E5FF;
+}
+
+body:not(.dark) .mfr-dia-btn.sel {
   background: #f0feff;
   color: #0891b2;
 }
 
 .mfr-dia-btn.dis {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
-  background: #f9fafb;
+  background: var(--bg-secondary);
+  border-color: transparent;
 }
 
-/* ── Grid horas ── */
 .mfr-horas-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -318,37 +346,59 @@
   padding: 8px 4px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
+  background: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: all 0.15s;
 }
 
-.mfr-hora-btn:hover:not(.dis) { border-color: #00E5FF; }
+.mfr-hora-btn:hover:not(.dis) { 
+  border-color: #00E5FF; 
+  color: var(--text-primary);
+}
 
 .mfr-hora-btn.sel {
   border: 2px solid #00E5FF;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00E5FF;
+}
+
+body:not(.dark) .mfr-hora-btn.sel {
   background: #f0feff;
   color: #0891b2;
 }
 
 .mfr-hora-btn.dis {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
-  background: #f9fafb;
+  background: var(--bg-secondary);
+  border-color: transparent;
   text-decoration: line-through;
 }
 
-/* ── Mensajes ── */
-.mfr-hint  { font-size: 12px; color: #9ca3af; margin: 0; }
-.mfr-error { font-size: 12px; color: #991b1b; margin: 0; background: #fee2e2; padding: 8px 12px; border-radius: 6px; }
+.mfr-hint  { font-size: 12px; color: var(--text-tertiary); margin: 0; }
 
-/* ── Footer ── */
+.mfr-error { 
+  font-size: 12px; 
+  color: #fca5a5; 
+  margin: 0; 
+  background: rgba(239, 68, 68, 0.15); 
+  padding: 8px 12px; 
+  border: 1px solid #ef4444;
+  border-radius: 6px; 
+}
+
+body:not(.dark) .mfr-error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: none;
+}
+
 .mfr-footer {
   padding: 14px 20px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
@@ -363,6 +413,6 @@
   transition: background 0.15s;
 }
 
-.mfr-btn-confirmar.enabled       { background: #00E5FF; color: #111827; }
+.mfr-btn-confirmar.enabled       { background: #00E5FF; color: #1C1C1C; }
 .mfr-btn-confirmar.enabled:hover { background: #00c8e0; }
-.mfr-btn-confirmar.disabled      { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+.mfr-btn-confirmar.disabled      { background: var(--border-input); color: var(--text-tertiary); cursor: not-allowed; }

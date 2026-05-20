@@ -94,7 +94,7 @@ function Feedback() {
       {stats && (
         <div className="feedback_stats">
           <span>⭐ Promedio: <strong>{stats.rating_average || 0}</strong></span>
-          <span>💬 Total: <strong>{stats.total_reviews || 0}</strong></span>
+             <span>💬 Total: <strong>{reseñas.length}</strong></span>
         </div>
       )}
 

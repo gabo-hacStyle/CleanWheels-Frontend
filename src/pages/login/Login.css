@@ -16,31 +16,40 @@
 .login_container {
   display: flex;
   flex-direction: row;
-  height: 86.3vh;
-  background-color: #DADADA;
-  margin: none;
+  min-height: 100vh;
+  background-color: #f8fafc; 
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
+
 .img_container {
   width: 50%;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;
+  position: relative;
+}
+
+.img_container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), #f8fafc);
 }
 
 .login_img {
   width: 100%;
   height: 100%;
-  animation: kenburns 10s ease-in-out infinite alternate;
+  object-fit: cover;
+  animation: kenburns 12s ease-in-out infinite alternate;
 }
 
 @keyframes kenburns {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.1);
-  }
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
 }
 
 .aouth_container {
@@ -48,49 +57,64 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 40px;
-  color: #555;
+  color: #374151; 
+  z-index: 2;
 }
 
 .login_title {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: bold;
-  margin-bottom: 20px;
+  color: #111827; 
   font-family: 'Lalezar', sans-serif;
-  border-bottom: 2px solid black;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+  border-bottom: 3px solid #2563eb; 
+  padding-bottom: 8px;
+  margin-bottom: 16px;
   display: inline-block;
+  letter-spacing: 0.03em;
+}
 
-}
-p {
-    text-align: center;
-  font-size: 18px;
-  margin-bottom: 50px;
-}
-.login_btn {
-  background-color: white;
-  color: #3c4043; 
-  padding: 10px 20px;
-  border: 1px solid #dadce0; 
-  border-radius: 6px; 
+.aouth_container p {
+  text-align: center;
   font-size: 16px;
-  font-weight: 500;
+  color: #6b7280; 
+  margin-bottom: 40px;
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+
+.login_btn {
+  background-color: #ffffff; 
+  color: #374151; 
+  padding: 12px 28px;
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px; 
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  max-width: 320px;
 }
 
 .login_btn:hover {
-  background-color: #f8f9fa;
-  border-color: #d2e3fc;
-  box-shadow: 0 1px 3px rgba(60,64,67,0.3);
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.login_btn:active {
+  transform: translateY(0);
 }
 
 .google_icon_fa {
@@ -98,4 +122,60 @@ p {
   height: 20px; 
   display: block; 
   object-fit: contain; 
+}
+
+
+@media (max-width: 900px) {
+  .login_title {
+    font-size: 32px;
+  }
+  
+  .aouth_container {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login_container {
+    position: relative;
+    align-items: center;
+  }
+
+  .img_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .img_container::after {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), #f8fafc 95%);
+  }
+
+  .aouth_container {
+    width: 100%;
+    height: auto;
+    padding: 50px 24px;
+    background-color: transparent; 
+  }
+
+  .login_title {
+    font-size: 34px;
+    margin-bottom: 12px;
+  }
+
+  .aouth_container p {
+    font-size: 15px;
+    margin-bottom: 36px;
+    color: #4b5563;
+  }
+
+  .login_btn {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); 
+  }
 }

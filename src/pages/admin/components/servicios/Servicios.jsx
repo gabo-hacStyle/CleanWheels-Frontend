@@ -145,6 +145,15 @@ export default function Servicios() {
     }
   }
 
+  const handleActivar = async (id) => {
+    try {
+      await fetch(`http://localhost:8080/api/booking/services/${id}/activate`, { method: "PATCH", headers })
+      await cargarServicios()
+    } catch (err) {
+      console.error("Error activando servicio:", err)
+    }
+  }
+
   const handleDesactivar = async (id) => {
     try {
       await fetch(`http://localhost:8080/api/booking/services/${id}/deactivate`, { method: "PATCH", headers })
@@ -244,10 +253,6 @@ export default function Servicios() {
               ))}
             </select>
             <input name="url" placeholder="URL de imagen (opcional)" value={formulario.url} onChange={handleChange} />
-            <label className="formulario_check">
-              <input type="checkbox" name="is_active" checked={formulario.is_active} onChange={handleChange} />
-              Activo
-            </label>
           </div>
           {error && <p className="form_error">{error}</p>}
           <div className="formulario_botones">
@@ -285,8 +290,10 @@ export default function Servicios() {
               <td className="acciones">
                 <button className="btn_icono btn_icono_editar" title="Editar" onClick={() => handleEditar(s)}>✏️</button>
                 <button className="btn_icono btn_icono_eliminar" title="Eliminar" onClick={() => handleEliminar(s.id)}>🗑</button>
-                {s.is_active && (
+                {s.is_active ? (
                   <button className="btn_icono btn_icono_desactivar" title="Desactivar" onClick={() => handleDesactivar(s.id)}>⏸</button>
+                ) : (
+                  <button className="btn_icono btn_icono_activar" title="Activar" onClick={() => handleActivar(s.id)}>▶️</button>
                 )}
               </td>
             </tr>

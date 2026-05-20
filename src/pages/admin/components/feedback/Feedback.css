@@ -127,7 +127,6 @@
   border-color: #00E5FF;
 }
 
-/* ── Toggle modo oscuro ── */
 .theme-toggle {
   width: 100%;
   display: flex;
@@ -181,4 +180,45 @@
 
 .feedback_custom span {
   color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .feedback_titulo {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .feedback_filtros {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filtro_btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    white-space: nowrap; 
+  }
+
+  .feedback_custom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .feedback_grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feedback_card {
+    padding: 20px 16px;
+  }
+
+  .feedback_stats {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
 }

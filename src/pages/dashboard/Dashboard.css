@@ -1,4 +1,39 @@
-/* ── Global reset ─────────────────────────────────────────── */
+
+:root {
+  --bg-body: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --bg-feedback-card: #f9fafb;
+  --bg-nav: #f3f4f6;
+  --bg-nav-hover: #e5e7eb;
+  --bg-table-head: #f3f4f6;
+  
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  
+  --border-color: #e5e7eb;
+  --border-input: #d1d5db;
+}
+
+body.dark {
+ 
+  --bg-body: #0d0e12;          
+  --bg-card: #14161e;           
+  --bg-secondary: #1a1d26;      
+  --bg-feedback-card: #181a21;
+  --bg-nav: #111319;            
+  --bg-nav-hover: #222633;      
+  --bg-table-head: #090a0d;     
+  
+  --text-primary: #f9fafb;      
+  --text-secondary: #9ca3af;    
+  --text-tertiary: #6b7280;     
+  
+  --border-color: #222633;      
+  --border-input: #2e3344;      
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -6,18 +41,38 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f9fafb;
-  color: #111827;
+  background-color: var(--bg-body); 
+  color: var(--text-primary);       
+  transition: background-color 0.25s ease, color 0.25s ease; 
 }
 
-/* ── Dashboard layout ─────────────────────────────────────── */
 .app-layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--bg-body);
 }
 
 .app-main {
   flex: 1;
   overflow-y: auto;
   padding: 32px;
+  background-color: var(--bg-body);
+}
+
+body.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: var(--border-input);
+  border-radius: 4px;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: #00E5FF;
 }

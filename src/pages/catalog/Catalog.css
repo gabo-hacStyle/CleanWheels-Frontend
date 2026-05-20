@@ -1,4 +1,3 @@
-
 @font-face {
   font-family: 'Lalezar'; 
   src: url('../../fonts/Lalezar-Regular.ttf') format('truetype');
@@ -8,91 +7,122 @@
 }
 
 .catalogo {
-  padding: 40px;
-  background-color: #F3F3F4;
+  padding: 50px 40px;
+  background-color: #5e6466;
+  min-height: 80vh;
 }
 
 .categoria {
-  background-color: #F3F3F4;
-  border-radius: 8px;
-  padding: 25px;
-  margin-bottom: 30px;
+  background-color: #5e6466;
+  border-radius: 12px;
+  padding: 35px 25px;
+  margin-bottom: 40px;
 }
 
 .categoria h2 {
-  font-size: 25px;
+  font-size: 26px;
   font-weight: bold;
-  color: #1C1C1C;
+  color: #ffffff;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   padding-bottom: 10px;
-  border-bottom: 3px solid #00E5FF;
+  border-bottom: 3px solid rgb(45, 255, 237);
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
+  font-family: 'Lalezar', sans-serif;
+  letter-spacing: 0.03em;
 }
 
 .tarjetas_container {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 20px;
+  gap: 24px;
+  flex-wrap: wrap; 
 }
 
 .tarjeta {
-  background-color: #2d2d2d;
-  border-radius: 12px;
+  background-color: #63686a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
   width: 30%;
+  min-width: 260px; 
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .tarjeta:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 20px rgba(0, 229, 255, 0.4);
+  transform: translateY(-6px);
+  border-color: rgb(45, 255, 237);
+  box-shadow: 0 12px 24px rgba(45, 255, 237, 0.25);
 }
 
 .tarjeta_img_container {
   width: 100%;
   height: 180px;
   overflow: hidden;
+  background-color: #4a4e50;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .tarjeta_img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .tarjeta:hover .tarjeta_img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .tarjeta_content {
-  padding: 20px;
+  padding: 22px;
 }
 
 .tarjeta_content h3 {
   font-size: 18px;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 8px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .tarjeta_content p {
-  font-size: 13px;
-  color: #aaa;
-  margin-bottom: 5px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
 .tarjeta_precio {
-  color: #00E5FF !important;
-  font-weight: bold !important;
-  font-size: 18px !important;
-  margin-top: 10px !important;
+  color: rgb(45, 255, 237) !important;
+  font-weight: 800 !important;
+  font-size: 21px !important;
+  margin-top: 14px !important;
+  display: block;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 992px) {
+  .tarjeta { width: 45%; }
+}
+
+@media (max-width: 768px) {
+  .catalogo { padding: 30px 16px; }
+  .categoria { padding: 25px 15px; margin-bottom: 25px; }
+  .categoria h2 { font-size: 22px; }
+  .tarjeta { width: 46%; min-width: 220px; }
+}
+
+@media (max-width: 520px) {
+  .tarjetas_container { flex-direction: column; align-items: center; }
+  .tarjeta { width: 100%; max-width: 340px; }
+  .tarjeta_img_container { height: 160px; }
 }

@@ -287,3 +287,75 @@ div.servicios_header {
   border-radius: 6px !important;
   border-left: 3px solid #dc2626 !important;
 }
+@media (max-width: 768px) {
+  
+  div.servicios_header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .servicios_header_btns {
+    width: 100% !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .btn_agregar, .btn_categorias {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 12px !important;
+  }
+
+  .formulario_grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .formulario_botones {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .btn_guardar, .btn_cancelar {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .servicios_tabla {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .servicios_tabla th, .servicios_tabla td {
+    padding: 10px 12px !important;
+    white-space: nowrap !important; 
+  }
+
+  .modal_contenido {
+    width: 95% !important;
+    padding: 20px !important;
+    max-height: 90vh !important;
+  }
+
+  .modal_formulario {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .modal_formulario input {
+    width: 100% !important;
+  }
+
+
+  .acciones {
+    gap: 8px !important;
+  }
+  
+  .btn_icono {
+    width: 36px !important; 
+    height: 36px !important;
+  }
+}

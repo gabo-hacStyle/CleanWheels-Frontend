@@ -12,7 +12,7 @@ function Category(props) {
             name={servicio.name}
             description={servicio.description}
             duration={servicio.duration}
-            price={servicio.price}
+            price={servicio.precioFormateado}
           />
         ))}
       </div>

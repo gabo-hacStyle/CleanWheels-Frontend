@@ -7,14 +7,14 @@
 }
 
 .services-container {
-    margin-top: 50px;
+    margin-top: 20px;
     margin-bottom: 20px;
     padding: 0px 20px;
 }
 
 .title-wrapper {
     background: linear-gradient(135deg, #1e90ff 0%, #00bcd4 50%, #4CAF50 100%);
-    padding: 30px 20px;
+    padding: 4px 2px;
     border-radius: 12px;
     margin-bottom: 30px;
     box-shadow: 0 8px 24px rgba(30, 144, 255, 0.3);
@@ -34,7 +34,7 @@
 }
 
 .services-container h1 {
-    font-size: 42px;
+    font-size: 28px;
     font-weight: 800;
     color: #ffffff;
     margin: 0;

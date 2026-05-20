@@ -1,55 +1,158 @@
-@font-face{
-    font-family: "Lemon-Regular";
-    src: url('../../../../fonts/Lemon-Regular.ttf')
+
+@font-face {
+  font-family: "Lemon-Regular";
+  src: url('../../../../fonts/Lemon-Regular.ttf') format('truetype');
+  font-display: swap;
 }
-.hero-section{
-    background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0,0,0,0.3)),
+
+.hero-section {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)), 
     url('../../../../assets/bluehellcat.jpg');
-    background-repeat: no-repeat;
-    background-size:cover;
-    background-position: center;
-    width: 100%;
-    height: 50vh;
-    display:flex;
-    align-items: center;
-    justify-content: space-evenly;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  min-height: 40vh; 
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 40px 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.hero-left{
-    width: 40%;
-    display:flex;
-    flex-direction: column;
-    align-items: start;
-    justify-content: space-around;
-}
-.hero-left h1{
-    font-family:"Lemon-Regular";
-    font-size: 3rem;
-    font-weight: 800;
-    color: white;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    text-shadow:
-        1px 1px 0 black,
-        -1px 1px 0 black,
-        1px -1px 0 black,
-        -1px -1px 0 black,
-        0px 4px 10px rgba(0,0,0,0.6);
+.hero-left {
+  width: 45%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 2;
 }
 
-.hero-left span{
-    font-size: 1.2rem;
-    color: rgba(255,255,255,0.85);
+.hero-left h1 {
+  font-family: "Lemon-Regular", sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  margin: 0 0 1.2rem 0;
+  text-shadow:
+    2px 2px 0px #000000,
+    -1px 2px 0px #000000,
+    2px -1px 0px #000000,
+    -1px -1px 0px #000000,
+    0px 8px 16px rgba(0, 0, 0, 0.6);
+}
+
+.hero-left span {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-left button {
+  background: #f59e0b; 
+  color: #1C1C1C;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1.2rem; 
+  padding: 14px 32px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-left button:hover {
+  background: #00E5FF; 
+  box-shadow: 0 6px 20px rgba(0, 229, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.hero-left button:active {
+  transform: translateY(0);
+}
+
+.hero-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.hero-right img {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s ease;
+}
+
+
+@media (max-width: 968px) {
+  .hero-section {
+    min-height: 30vh;
+    gap: 20px;
+  }
+
+  .hero-left h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-left span {
+    font-size: 1.1rem;
     margin-bottom: 1.5rem;
+  }
+
+  .hero-right img {
+    width: 240px;
+    height: 240px;
+  }
 }
-.hero-left button{
-    background-color: yellow;
-    border-radius: 10px;
-    font-size: 2rem;
-}
-.hero-right img{
-    width: 300px;
-    height: 300px;
-    box-shadow: 5px 5px 5px black;
+
+
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column-reverse; 
+    justify-content: center;
+    text-align: center;
+    max-height: 40vh;
+  }
+
+  .hero-left {
+    width: 100%;
+    align-items: center; 
+  }
+
+  .hero-left h1 {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-left span {
+    font-size: 1rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .hero-left button {
+    width: 100%; 
+    max-width: 300px;
+    font-size: 1.1rem;
+    padding: 16px 24px;
+  }
+
+  .hero-right img {
+    width: 200px; 
+    height: 200px;
+  }
 }

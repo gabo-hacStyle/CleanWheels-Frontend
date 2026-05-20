@@ -1,11 +1,11 @@
-/* ModalAgregarVehiculo.css */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.65); 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,15 +14,15 @@
 }
 
 .modal-container {
-  background: white;
+  background: var(--bg-card); 
+  border: 1px solid var(--border-color); 
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
-  /* Flex column: header y footer fijos, solo el body hace scroll */
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   animation: slideUp 0.3s ease-out;
 }
 
@@ -31,14 +31,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color); 
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary); 
 }
 
 .modal-close {
@@ -46,8 +46,8 @@
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: #6b7280;
-  transition: color 0.15s;
+  color: var(--text-secondary); 
+  transition: color 0.15s, background-color 0.15s;
   line-height: 1;
   padding: 0;
   width: 32px;
@@ -59,8 +59,8 @@
 }
 
 .modal-close:hover {
-  color: #111827;
-  background-color: #f3f4f6;
+  color: var(--text-primary);
+  background-color: var(--bg-nav-hover);
 }
 
 .modal-body {
@@ -69,14 +69,20 @@
   flex: 1;
 }
 
+
 .modal-error {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 14px;
   border-left: 4px solid #dc2626;
+}
+
+body:not(.dark) .modal-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
 }
 
 .form-group {
@@ -88,11 +94,11 @@
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary); 
 }
 
 .required {
-  color: #dc2626;
+  color: #ef4444;
   margin-left: 2px;
 }
 
@@ -100,26 +106,35 @@
 .marca-select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input); 
   border-radius: 8px;
   font-size: 14px;
-  color: #111827;
-  background: white;
+  color: var(--text-primary); 
+  background: var(--bg-secondary); 
   transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
   box-sizing: border-box;
 }
 
+body:not(.dark) .form-group input,
+body:not(.dark) .marca-select {
+  background: #ffffff;
+}
+
 .marca-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
   cursor: pointer;
 }
 
-/* ── Dropdown custom de marca ─────────────────────────────── */
+body:not(.dark) .marca-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+
 .marca-dropdown {
   position: relative;
 }
@@ -127,11 +142,11 @@
 .marca-trigger {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
   font-size: 14px;
-  color: #111827;
-  background: white;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
   text-align: left;
   cursor: pointer;
   display: flex;
@@ -142,10 +157,14 @@
   box-sizing: border-box;
 }
 
+body:not(.dark) .marca-trigger {
+  background: #ffffff;
+}
+
 .marca-trigger:focus,
 .marca-dropdown.open .marca-trigger {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #00E5FF;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
 }
 
 .marca-dropdown.error-input .marca-trigger {
@@ -153,12 +172,12 @@
 }
 
 .marca-trigger .placeholder {
-  color: #9ca3af;
+  color: var(--text-tertiary);
 }
 
 .marca-chevron {
   flex-shrink: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   transition: transform 0.2s;
 }
 
@@ -168,13 +187,13 @@
 
 .marca-list {
   position: absolute;
-  top: calc(100% + 4px);   /* siempre hacia abajo */
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #d1d5db;
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   max-height: 200px;
   overflow-y: auto;
   z-index: 100;
@@ -183,32 +202,45 @@
   padding: 4px 0;
 }
 
+body:not(.dark) .marca-list {
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
 .marca-option {
   padding: 9px 14px;
   font-size: 14px;
-  color: #374151;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.1s, color 0.1s;
 }
 
 .marca-option:hover {
-  background: #f3f4f6;
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
 }
 
 .marca-option.selected {
-  background: #eff6ff;
-  color: #2563eb;
+  background: rgba(0, 229, 255, 0.1);
+  color: #00E5FF;
   font-weight: 600;
 }
 
-.marca-list::-webkit-scrollbar       { width: 6px; }
+body:not(.dark) .marca-option.selected {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+
+.marca-list::-webkit-scrollbar { width: 6px; }
 .marca-list::-webkit-scrollbar-track { background: transparent; }
-.marca-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+.marca-list::-webkit-scrollbar-thumb { background: var(--border-input); border-radius: 3px; }
+
 
 .form-group input:focus,
 .marca-select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #00E5FF;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
 }
 
 .form-group input.error-input,
@@ -218,60 +250,67 @@
 
 .form-group input.error-input:focus,
 .marca-select.error-input:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
 .input-hint {
   display: block;
   margin-top: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
+
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-nav);
   border-radius: 0 0 12px 12px;
 }
+
+body:not(.dark) .modal-footer {
+  background-color: #f9fafb;
+}
+
 
 .btn-cancel,
 .btn-submit {
   padding: 8px 20px;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
   border: none;
 }
 
 .btn-cancel {
-  background: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-input);
 }
 
 .btn-cancel:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: var(--bg-nav-hover);
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
 }
 
 .btn-submit {
-  background: #2563eb;
-  color: white;
+  background: #00E5FF;
+  color: #1C1C1C; 
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: #00c8e0;
   transform: translateY(-1px);
 }
 
 .btn-submit:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -285,15 +324,14 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-.modal-container::-webkit-scrollbar       { width: 8px; }
-.modal-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-.modal-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-.modal-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+.modal-container::-webkit-scrollbar { width: 8px; }
+.modal-container::-webkit-scrollbar-track { background: var(--bg-body); border-radius: 4px; }
+.modal-container::-webkit-scrollbar-thumb { background: var(--border-input); border-radius: 4px; }
 
-/* ── Responsive ───────────────────────────────────────────── */
+
 @media (max-width: 480px) {
   .modal-overlay {
-    align-items: flex-end;        /* el modal sube desde abajo en móvil */
+    align-items: flex-end;
     padding: 0;
   }
 
@@ -301,7 +339,8 @@
     width: 100%;
     max-width: 100%;
     max-height: 92vh;
-    border-radius: 16px 16px 0 0;  /* solo esquinas superiores redondeadas */
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
     animation: slideUpMobile 0.3s ease-out;
   }
 
