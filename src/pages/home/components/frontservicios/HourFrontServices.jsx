@@ -87,8 +87,8 @@ const HourFrontServices = () => {
         <div className='divider'></div>
         <div className='services-container'>
           <div className='title-wrapper'>
-            <h1>💧 ¡¡Reservas para el dia de HOY!! 💧</h1>
-            <p className='title-subtitle'>Tu lavado perfecto te espera</p>
+            <h1>Reservas para HOY 💧</h1>
+           
           </div>
           <ServicesCard currentHour={hour} reservations={reservations}/>
         </div>

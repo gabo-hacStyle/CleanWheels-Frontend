@@ -13,7 +13,7 @@
   background-size: cover;
   background-position: center;
   width: 100%;
-  min-height: 60vh; 
+  min-height: 40vh; 
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -98,13 +98,10 @@
   transition: transform 0.4s ease;
 }
 
-.hero-right img:hover {
-  transform: scale(1.03) rotate(1deg);
-}
 
 @media (max-width: 968px) {
   .hero-section {
-    min-height: 50vh;
+    min-height: 30vh;
     gap: 20px;
   }
 
@@ -129,9 +126,7 @@
     flex-direction: column-reverse; 
     justify-content: center;
     text-align: center;
-    min-height: auto;
-    padding: 60px 20px;
-    gap: 32px;
+    max-height: 40vh;
   }
 
   .hero-left {
