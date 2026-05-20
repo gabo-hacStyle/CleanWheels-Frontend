@@ -554,3 +554,119 @@ body:not(.dark) .vehiculo-card:hover {
     min-width: 420px;
   }
 }
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeInModal 0.2s ease-out;
+}
+
+.custom-modal-box {
+  background: var(--bg-card, #1e1e1e);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  animation: scaleInModal 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-modal-header h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.custom-modal-header.cancel h3 {
+  color: #ef4444;
+}
+
+.custom-modal-header.reactivate h3 {
+  color: #10b981;
+}
+
+.custom-modal-body p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-secondary, #b3b3b3);
+  line-height: 1.5;
+}
+
+.custom-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.custom-modal-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.custom-modal-btn:active {
+  transform: scale(0.97);
+}
+
+.custom-modal-btn.btn-close {
+  background: var(--bg-nav-hover, #2a2a2a);
+  color: var(--text-primary, #ffffff);
+}
+
+.custom-modal-btn.btn-close:hover {
+  background: var(--border-input, #3a3a3a);
+}
+
+.custom-modal-btn.btn-confirm.cancel {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.custom-modal-btn.btn-confirm.cancel:hover {
+  background: #dc2626;
+}
+
+.custom-modal-btn.btn-confirm.reactivate {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.custom-modal-btn.btn-confirm.reactivate:hover {
+  background: #059669;
+}
+
+body:not(.dark) .custom-modal-box {
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+body:not(.dark) .custom-modal-btn.btn-close {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+body:not(.dark) .custom-modal-btn.btn-close:hover {
+  background: #e5e7eb;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleInModal {
+  from { transform: scale(0.9) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}

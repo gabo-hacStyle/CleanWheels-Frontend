@@ -198,7 +198,7 @@ export default function FeedbackPage() {
                 </div>
               </div>
 
-              {currentErrorType === "auth" && (
+              {(currentErrorType === "auth" || currentErrorType === "permission") && (
                 <button 
                   type="button"
                   className="fb_google_btn"

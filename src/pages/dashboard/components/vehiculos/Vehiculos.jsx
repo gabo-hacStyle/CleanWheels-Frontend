@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./Vehiculos.css";
 import ModalAgregarVehiculo from "./ModalAgregarVehiculo";
 
@@ -6,10 +6,9 @@ const STATUS_FILTERS = ["Todos", "pendiente", "completado", "cancelado"];
 const PAGE_SIZE = 5;
 
 const STATUS_LABELS = {
-  pendiente:  "Pendiente",
+  pendiente: "Pendiente",
   completado: "Completado",
-  cancelado:  "Cancelado",
-  // fallback para otros valores
+  cancelado: "Cancelado",
 };
 
 function formatPrice(price) {
@@ -29,17 +28,32 @@ function getUserIdFromToken(token) {
   }
 }
 
-// ── Tab: Reservas ────────────────────────────────────────────
 function ReservasTab() {
-  const [reservas, setReservas]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState(null);
-  const [search, setSearch]       = useState("");
-  const [filter, setFilter]       = useState("Todos");
-  const [page, setPage]           = useState(1);
-  const [expanded, setExpanded]   = useState(null);
+  const [reservas, setReservas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("Todos");
+  const [page, setPage] = useState(1);
+  const [expanded, setExpanded] = useState(null);
+  const [actionLoading, setActionLoading] = useState({});
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "cancel",
+    reservationId: null,
+  });
 
-  useEffect(() => {
+  const getStatusLabel = (status = "") => {
+    const s = status.toLowerCase();
+    if (s === "pendiente") return "Pendiente";
+    if (s === "completado" || s === "completada") return "Completado";
+    if (s === "cancelado" || s === "cancelada") return "Cancelado";
+    return status;
+  };
+
+  const fetchReservas = () => {
     const token = localStorage.getItem("token");
     if (!token) { setError("No hay sesión iniciada"); setLoading(false); return; }
 
@@ -52,42 +66,100 @@ function ReservasTab() {
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
       .then(json => {
         if (!json.success) throw new Error(json.message || "Error al cargar reservas");
-        setReservas(json.data);
+        setReservas(json.data ?? []);
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchReservas();
   }, []);
 
-  const total      = reservas.length;
-  const pendientes = reservas.filter(r => r.status === "pendiente").length;
-  const completados = reservas.filter(r => r.status === "completado").length;
-  const cancelados = reservas.filter(r => r.status === "cancelado").length;
+  const abrirConfirmacionCancelar = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Confirmar Cancelación",
+      message: "¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer de forma automática.",
+      type: "cancel",
+      reservationId: id
+    });
+  };
+
+  const abrirConfirmacionReactivar = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Confirmar Reactivación",
+      message: "¿Deseas reactivar esta reserva y agendarla nuevamente en el sistema?",
+      type: "reactivate",
+      reservationId: id
+    });
+  };
+
+  const ejecutarAccionConfirmada = async () => {
+    const { type, reservationId } = confirmModal;
+    const token = localStorage.getItem("token");
+    if (!reservationId) return;
+
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+    setActionLoading(prev => ({ ...prev, [reservationId]: true }));
+
+    const endpoint = type === "cancel" ? "cancel" : "reactivate";
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/booking/reservations/${reservationId}/${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `No se pudo procesar la acción`);
+
+      fetchReservas();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [reservationId]: false }));
+    }
+  };
+
+  const total = reservas.length;
+  const pendientes = reservas.filter(r => r.status?.toLowerCase() === "pendiente").length;
+  const completados = reservas.filter(r => ["completado", "completada"].includes(r.status?.toLowerCase())).length;
+  const cancelados = reservas.filter(r => ["cancelado", "cancelada"].includes(r.status?.toLowerCase())).length;
 
   const filtered = useMemo(() => {
     return reservas.filter(r => {
-      const matchFilter = filter === "Todos" || r.status === filter;
+      const statusLower = r.status?.toLowerCase() || "";
+
+      let matchFilter = false;
+      if (filter === "Todos") matchFilter = true;
+      if (filter === "pendiente" && statusLower === "pendiente") matchFilter = true;
+      if (filter === "completado" && ["completado", "completada"].includes(statusLower)) matchFilter = true;
+      if (filter === "cancelado" && ["cancelado", "cancelada"].includes(statusLower)) matchFilter = true;
+
       const q = search.toLowerCase();
-      const matchSearch =
+      return matchFilter && (
         !q ||
         r.placa?.toLowerCase().includes(q) ||
         r.marca?.toLowerCase().includes(q) ||
         r.modelo?.toLowerCase().includes(q) ||
         r.date?.includes(q) ||
-        r.status?.toLowerCase().includes(q) ||
-        r.services?.some(s => s.name.toLowerCase().includes(q));
-      return matchFilter && matchSearch;
+        statusLower.includes(q) ||
+        r.services?.some(s => s.name.toLowerCase().includes(q))
+      );
     });
   }, [reservas, search, filter]);
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const paginated   = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const goTo        = p => setPage(Math.max(1, Math.min(p, totalPages)));
-  const handleFilter = f => { setFilter(f); setPage(1); };
-  const handleSearch = e => { setSearch(e.target.value); setPage(1); };
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const goTo = p => setPage(Math.max(1, Math.min(p, totalPages)));
 
   if (loading) return <p className="vehiculos-hint">Cargando reservas...</p>;
-  if (error)   return <p className="vehiculos-error">{error}</p>;
+  if (error) return <p className="vehiculos-error">{error}</p>;
 
   return (
     <>
@@ -96,7 +168,7 @@ function ReservasTab() {
         type="text"
         placeholder="Buscar reserva..."
         value={search}
-        onChange={handleSearch}
+        onChange={e => { setSearch(e.target.value); setPage(1); }}
       />
 
       <div className="vehiculos-stats">
@@ -123,9 +195,9 @@ function ReservasTab() {
           <button
             key={f}
             className={`filter-btn ${filter === f ? "active" : ""}`}
-            onClick={() => handleFilter(f)}
+            onClick={() => { setFilter(f); setPage(1); }}
           >
-            {f === "Todos" ? "Todos" : STATUS_LABELS[f] ?? f}
+            {f === "Todos" ? "Todos" : f === "pendiente" ? "Pendiente" : f === "completado" ? "Completado" : "Cancelado"}
           </button>
         ))}
       </div>
@@ -140,55 +212,99 @@ function ReservasTab() {
               <th>Total</th>
               <th>Estado</th>
               <th>Servicios</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: "center", color: "#9ca3af", padding: "24px" }}>
+                <td colSpan={7} style={{ textAlign: "center", color: "#9ca3af", padding: "24px" }}>
                   Sin resultados
                 </td>
               </tr>
             ) : (
-              paginated.map(r => (
-                <>
-                  <tr key={r.id}>
-                    <td>
-                      <span className="vehiculo-placa">{r.placa}</span>
-                      <span className="vehiculo-sub">{r.marca} {r.modelo}</span>
-                    </td>
-                    <td>{r.date}</td>
-                    <td>{r.time}</td>
-                    <td>{formatPrice(r.total_price)}</td>
-                    <td>
-                      <span className={`status-badge status-${r.status}`}>
-                        {STATUS_LABELS[r.status] ?? r.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className="expand-btn"
-                        onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                        title="Ver servicios"
-                      >
-                        {expanded === r.id ? "▲" : "▼"} {r.services?.length ?? 0} servicio{r.services?.length !== 1 ? "s" : ""}
-                      </button>
-                    </td>
-                  </tr>
-                  {expanded === r.id && (
-                    <tr key={`${r.id}-expanded`} className="expanded-row">
-                      <td colSpan={6}>
-                        <div className="servicios-list">
-                          {r.services?.map(s => (
-                            <span key={s.id} className="servicio-chip">{s.name}</span>
-                          ))}
-                          <span className="duracion-chip">⏱ {r.total_duration} min</span>
+              paginated.map(r => {
+                const statusLower = r.status?.toLowerCase() || "";
+                return (
+                  <React.Fragment key={r.id}>
+                    <tr>
+                      <td>
+                        <span className="vehiculo-placa">{r.placa}</span>
+                        <span className="vehiculo-sub">{r.marca} {r.modelo}</span>
+                      </td>
+                      <td>{r.date}</td>
+                      <td>{r.time}</td>
+                      <td>{formatPrice(r.total_price)}</td>
+                      <td>
+                        <span className={`status-badge status-${statusLower}`}>
+                          {getStatusLabel(r.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="expand-btn"
+                          onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                          title="Ver servicios"
+                        >
+                          {expanded === r.id ? "▲" : "▼"} {r.services?.length ?? 0} servicio{r.services?.length !== 1 ? "s" : ""}
+                        </button>
+                      </td>
+                      <td>
+                        <div className="acciones-cell" style={{ display: "flex", gap: "6px" }}>
+                          {statusLower === "pendiente" && (
+                            <button
+                              className="btn-cancelar-reserva"
+                              onClick={() => abrirConfirmacionCancelar(r.id)}
+                              disabled={actionLoading[r.id]}
+                              style={{ backgroundColor: "#ef4444", color: "#fff", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
+                            >
+                              {actionLoading[r.id] ? "..." : "Cancelar"}
+                            </button>
+                          )}
+
+                          {["cancelado", "cancelada"].includes(statusLower) && (() => {
+                            const fechaReserva = new Date(`${r.date}T${r.time}:00`);
+                            const ahora = new Date();
+                            const esFutura = fechaReserva > ahora;
+
+                            if (esFutura) {
+                              return (
+                                <button
+                                  className="btn-reactivar-reserva"
+                                  onClick={() => abrirConfirmacionReactivar(r.id)}
+                                  disabled={actionLoading[r.id]}
+                                  style={{ backgroundColor: "#10b981", color: "#fff", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
+                                >
+                                  {actionLoading[r.id] ? "..." : "Reactivar"}
+                                </button>
+                              );
+                            } else {
+                              return <span style={{ color: "#9ca3af", fontSize: "12px", fontStyle: "italic" }}>Expirada</span>;
+                            }
+                          })()}
+
+                          {(["completado", "completada", "finalizada", "confirmada"].includes(statusLower) && statusLower !== "pendiente") && (
+                            <span style={{ color: "#9ca3af", fontSize: "13px" }}>—</span>
+                          )}
                         </div>
                       </td>
                     </tr>
-                  )}
-                </>
-              ))
+
+                    {expanded === r.id && (
+                      <tr className="expanded-row">
+                        <td colSpan={7}>
+                          <div className="servicios-list">
+                            {r.services?.map(s => (
+                              <span key={s.id} className="servicio-chip">{s.name}</span>
+                            ))}
+                            <span className="duracion-chip">⏱ {r.total_duration} min</span>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -209,17 +325,43 @@ function ReservasTab() {
           <button className="page-btn" onClick={() => goTo(totalPages)} disabled={currentPage === totalPages}>»</button>
         </div>
       </div>
+
+      {confirmModal.isOpen && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal-box">
+            <div className={`custom-modal-header ${confirmModal.type}`}>
+              <h3>{confirmModal.title}</h3>
+            </div>
+            <div className="custom-modal-body">
+              <p>{confirmModal.message}</p>
+            </div>
+            <div className="custom-modal-actions">
+              <button 
+                className="custom-modal-btn btn-close" 
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+              >
+                Volver
+              </button>
+              <button 
+                className={`custom-modal-btn btn-confirm ${confirmModal.type}`} 
+                onClick={ejecutarAccionConfirmada}
+              >
+                {confirmModal.type === "cancel" ? "Sí, Cancelar" : "Sí, Reactivar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
 
-// ── Tab: Vehículos ───────────────────────────────────────────
 function VehiculosTab() {
-  const [vehiculos, setVehiculos]   = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState(null);
-  const [search, setSearch]         = useState("");
-  const [modalOpen, setModalOpen]   = useState(false);
+  const [vehiculos, setVehiculos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchVehiculos = () => {
     const token = localStorage.getItem("token");
@@ -235,7 +377,7 @@ function VehiculosTab() {
       .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
       .then(json => {
         if (!json.success) throw new Error(json.message || "Error al cargar vehículos");
-        setVehiculos(json.data);
+        setVehiculos(json.data ?? []);
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
@@ -254,7 +396,7 @@ function VehiculosTab() {
   }, [vehiculos, search]);
 
   if (loading) return <p className="vehiculos-hint">Cargando vehículos...</p>;
-  if (error)   return <p className="vehiculos-error">{error}</p>;
+  if (error) return <p className="vehiculos-error">{error}</p>;
 
   return (
     <>
@@ -264,7 +406,7 @@ function VehiculosTab() {
           type="text"
           placeholder="Buscar vehículo..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => setSearch(v.target.value)}
           style={{ marginBottom: 0 }}
         />
         <button className="btn-agregar-vehiculo" onClick={() => setModalOpen(true)}>
@@ -309,7 +451,6 @@ function VehiculosTab() {
   );
 }
 
-// ── Main component ───────────────────────────────────────────
 export default function Vehiculos() {
   const [tab, setTab] = useState("reservas");
 
