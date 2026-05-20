@@ -176,10 +176,26 @@ export default function ModalServicios({ onClose, onAgendar, timeSelected = null
                         className={`service-card ${estaSeleccionado ? "selected" : ""} ${deshabilitado ? "disabled-card" : ""}`}
                         onClick={() => toggleServicio(svc)}
                       >
-                        <p className="service-card-name">{svc.name}</p>
-                        <p className="service-card-desc">{svc.description}</p>
-                        <p className="service-card-price">{formatPrice(svc.price)}</p>
-                        <p className="service-card-duration">{svc.duration} min</p>
+                        {svc.image_url && (
+                          <div className="service-card-image-container">
+                            <img 
+                              src={svc.image_url} 
+                              alt={svc.name}
+                              className="service-card-image"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                        <div className="service-card-content">
+                          <p className="service-card-name">{svc.name}</p>
+                          <p className="service-card-desc">{svc.description}</p>
+                          <p className="service-card-price">{formatPrice(svc.price)}</p>
+                          <p className="service-card-duration">{svc.duration} min</p>
+                        </div>
                       </div>
                     );
                   })}

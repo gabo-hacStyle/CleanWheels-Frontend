@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import "./Vehiculos.css";
 import ModalAgregarVehiculo from "./ModalAgregarVehiculo";
+import ModalServicios from "../servicios/ModalServicios";
+import ModalFormReserva from "../formreserva/ModalFormReserva";
 
 function getVehiculoIcon(tipo) {
   return tipo === 2 ? "🏍️" : "🚗";
@@ -13,7 +15,6 @@ const STATUS_LABELS = {
   pendiente:  "Pendiente",
   completado: "Completado",
   cancelado:  "Cancelado",
-  // fallback para otros valores
 };
 
 function formatPrice(price) {
@@ -42,8 +43,13 @@ function ReservasTab() {
   const [filter, setFilter]       = useState("Todos");
   const [page, setPage]           = useState(1);
   const [expanded, setExpanded]   = useState(null);
+  
+  // Estados para el modal de agendar
+  const [modal, setModal] = useState(null);
+  const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
+  const [timeSelected, setTimeSelected] = useState(null);
 
-  useEffect(() => {
+  const fetchReservas = () => {
     const token = localStorage.getItem("token");
     if (!token) { setError("No hay sesión iniciada"); setLoading(false); return; }
 
@@ -60,6 +66,10 @@ function ReservasTab() {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchReservas();
   }, []);
 
   const total      = reservas.length;
@@ -90,11 +100,40 @@ function ReservasTab() {
   const handleFilter = f => { setFilter(f); setPage(1); };
   const handleSearch = e => { setSearch(e.target.value); setPage(1); };
 
+  // Handlers para el modal de agendar
+  const handleOpenServices = (selectedTime = null) => {
+    setTimeSelected(selectedTime);
+    setModal("servicios");
+  };
+
+  const handleAgendar = (selArray, selectedTime = null) => {
+    setServiciosSeleccionados(selArray);
+    if (selectedTime) {
+      setTimeSelected(selectedTime);
+    }
+    setModal("reserva");
+  };
+
+  const handleCerrarTodo = () => {
+    setModal(null);
+    setServiciosSeleccionados([]);
+    setTimeSelected(null);
+    // Refrescar reservas al cerrar
+    fetchReservas();
+  };
+
   if (loading) return <p className="vehiculos-hint">Cargando reservas...</p>;
   if (error)   return <p className="vehiculos-error">{error}</p>;
 
   return (
     <>
+      {/* Header con búsqueda y botón Agendar */}
+      <div className="vehiculos-tab-header">
+        <button className="btn-agendar-reserva" onClick={() => handleOpenServices(null)}>
+          + Agendar reserva
+        </button>
+      </div>
+
       <div className="vehiculos-stats">
         <div className="stat-card">
           <span className="stat-label">Total</span>
@@ -205,6 +244,28 @@ function ReservasTab() {
           <button className="page-btn" onClick={() => goTo(totalPages)} disabled={currentPage === totalPages}>»</button>
         </div>
       </div>
+
+      {/* Modales de agendar reserva */}
+      {modal === "servicios" && (
+        <ModalServicios
+          onClose={handleCerrarTodo}
+          onAgendar={handleAgendar}
+          timeSelected={timeSelected}
+        />
+      )}
+
+      {modal === "reserva" && (
+        <ModalFormReserva
+          servicios={serviciosSeleccionados}
+          timeSelected={timeSelected}
+          onClose={handleCerrarTodo}
+          onVolver={() => setModal("servicios")}
+          onConfirmada={(reserva) => {
+            handleCerrarTodo();
+            console.log("Reserva creada:", reserva);
+          }}
+        />
+      )}
     </>
   );
 }

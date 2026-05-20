@@ -387,3 +387,25 @@
   font-size: 14px;
   padding: 12px 0;
 }
+/* ── Botón Agendar Reserva ── */
+.btn-agendar-reserva {
+  padding: 7px 16px;
+  background: #f59e0b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-agendar-reserva:hover {
+  background: #db8b00;
+  transform: translateY(-1px);
+}
+
+.btn-agendar-reserva:active {
+  transform: translateY(0);
+}
