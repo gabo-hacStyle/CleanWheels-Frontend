@@ -2,45 +2,12 @@ import { useState, useEffect } from "react";
 import "./ModalFormReserva.css";
 import ModalAgregarVehiculo from "../vehiculos/ModalAgregarVehiculo";
 
-const DIAS  = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
-const MARCAS_CARROS = new Set([
-  "Chevrolet", "Renault", "Mazda", "Kia", "Toyota",
-  "Hyundai", "Nissan", "Ford", "Volkswagen", "Honda",
-  "Suzuki", "Mitsubishi", "Jeep", "BMW", "Mercedes-Benz",
-  "Audi", "Peugeot", "Fiat", "Subaru", "Tesla",
-]);
-
-const MARCAS_MOTOS = new Set([
-  "Honda", "Yamaha", "Suzuki", "Kawasaki", "AKT",
-  "TVS", "Hero", "Bajaj", "Royal Enfield", "KTM",
-  "Ducati", "BMW", "Harley-Davidson", "Benelli", "CF Moto",
-  "Bera", "Auteco", "UM", "Italika", "Piaggio",
-]);
-
-function esMarcaMoto(marca) {
-  return MARCAS_MOTOS.has(marca) && !MARCAS_CARROS.has(marca);
-}
-
-function esMarcaCarro(marca) {
-  return MARCAS_CARROS.has(marca) && !MARCAS_MOTOS.has(marca);
-}
-
-function esMarcaAmbigua(marca) {
-  // Honda, Suzuki, BMW aparecen en ambas listas
-  return MARCAS_CARROS.has(marca) && MARCAS_MOTOS.has(marca);
-}
-
 function vehiculoMatchTipo(vehiculo, tipoVehiculo) {
-  const marca = vehiculo.marca;
-  if (esMarcaAmbigua(marca)) {
-    // Para marcas ambiguas (Honda, Suzuki, BMW) no podemos saber con certeza;
-    // los mostramos en ambos tipos para no perder vehículos del usuario.
-    return true;
-  }
-  if (tipoVehiculo === "moto") return MARCAS_MOTOS.has(marca);
-  return MARCAS_CARROS.has(marca);
+  if (tipoVehiculo === "moto") return vehiculo.tipo === 2;
+  return vehiculo.tipo === 1;
 }
 
 function formatDateInputValue(date) {
@@ -97,34 +64,41 @@ function formatPrice(price) {
   }).format(Number(price));
 }
 
-export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", onClose, onConfirmada, onVolver, timeSelected = null }) {
+export default function ModalFormReserva({
+  servicios,
+  tipoVehiculo = "carro",
+  onClose,
+  onConfirmada,
+  onVolver,
+  timeSelected = null
+}) {
   const hoy = formatDateInputValue(new Date());
   const tieneHorarioFijo = Boolean(timeSelected?.date && timeSelected?.hour);
 
-  const [weekStart, setWeekStart]   = useState(getWeekStart(timeSelected?.date ?? hoy));
+  const [weekStart, setWeekStart] = useState(getWeekStart(timeSelected?.date ?? hoy));
   const [calendario, setCalendario] = useState(null);
   const [loadingCal, setLoadingCal] = useState(true);
-  const [errorCal, setErrorCal]     = useState(null);
+  const [errorCal, setErrorCal] = useState(null);
 
-  const [vehiculos, setVehiculos]   = useState([]);
+  const [vehiculos, setVehiculos] = useState([]);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
   const [errorVehiculos, setErrorVehiculos] = useState(null);
   const [vehiculoId, setVehiculoId] = useState("");
-  const [fechaSel, setFechaSel]     = useState(tieneHorarioFijo ? timeSelected.date : null);
-  const [horaSel, setHoraSel]       = useState(tieneHorarioFijo ? timeSelected.hour : null);
+  const [fechaSel, setFechaSel] = useState(tieneHorarioFijo ? timeSelected.date : null);
+  const [horaSel, setHoraSel] = useState(tieneHorarioFijo ? timeSelected.hour : null);
 
-  const [submitting, setSubmitting]     = useState(false);
-  const [errorPost, setErrorPost]       = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorPost, setErrorPost] = useState(null);
   const [validacionMsg, setValidacionMsg] = useState(null);
 
   const [modalVehiculoOpen, setModalVehiculoOpen] = useState(false);
 
-  // ── Fetch vehículos ──────────────────────────────────────────
   const fetchVehiculos = () => {
     setLoadingVehiculos(true);
     setErrorVehiculos(null);
 
     const token = localStorage.getItem("token");
+
     if (!token) {
       setErrorVehiculos("No hay sesión iniciada");
       setLoadingVehiculos(false);
@@ -132,40 +106,55 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       const userId = payload.sub;
+
       if (!userId) throw new Error("No se encontró ID de usuario en el token");
 
       fetch(`http://localhost:8080/api/booking/vehicles/${userId}`, {
-        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       })
-        .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
+        .then(r => {
+          if (!r.ok) throw new Error(`Error ${r.status}`);
+          return r.json();
+        })
         .then(json => {
           if (!json.success) throw new Error(json.message || "Error al cargar vehículos");
+
           setVehiculos(json.data);
-          // Auto-seleccionar si solo hay uno del tipo correcto
-          const filtrados = json.data.filter(v => vehiculoMatchTipo(v, tipoVehiculo));
+
+          const filtrados = json.data.filter(v =>
+            vehiculoMatchTipo(v, tipoVehiculo)
+          );
+
           if (filtrados.length === 1) setVehiculoId(filtrados[0].id);
           else setVehiculoId("");
         })
         .catch(err => setErrorVehiculos(err.message))
         .finally(() => setLoadingVehiculos(false));
-    } catch (err) {
+    } catch {
       setErrorVehiculos("Error al procesar el token");
       setLoadingVehiculos(false);
     }
   };
 
-  useEffect(() => { fetchVehiculos(); }, []);
+  useEffect(() => {
+    fetchVehiculos();
+  }, []);
 
-  // Resetear selección de vehículo si cambia el tipo
   useEffect(() => {
     setVehiculoId("");
-    const filtrados = vehiculos.filter(v => vehiculoMatchTipo(v, tipoVehiculo));
+
+    const filtrados = vehiculos.filter(v =>
+      vehiculoMatchTipo(v, tipoVehiculo)
+    );
+
     if (filtrados.length === 1) setVehiculoId(filtrados[0].id);
   }, [tipoVehiculo, vehiculos]);
 
-  // ── Fetch calendario ─────────────────────────────────────────
   useEffect(() => {
     if (tieneHorarioFijo) {
       setLoadingCal(false);
@@ -183,11 +172,21 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
     setHoraSel(null);
 
     const token = localStorage.getItem("token");
+
     fetch(`http://localhost:8080/api/booking/reservations/calendar/week?week_start=${weekStart}`, {
-      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     })
-      .then(r => { if (!r.ok) throw new Error(`Error ${r.status}`); return r.json(); })
-      .then(json => { if (!json.success) throw new Error("Respuesta no exitosa"); setCalendario(json.data); })
+      .then(r => {
+        if (!r.ok) throw new Error(`Error ${r.status}`);
+        return r.json();
+      })
+      .then(json => {
+        if (!json.success) throw new Error("Respuesta no exitosa");
+        setCalendario(json.data);
+      })
       .catch(err => setErrorCal(err.message))
       .finally(() => setLoadingCal(false));
   }, [weekStart, tieneHorarioFijo, timeSelected]);
@@ -195,7 +194,9 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
   const irSemanaAnterior = () => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() - 7);
+
     const nueva = d.toISOString().split("T")[0];
+
     if (nueva >= getWeekStart(hoy)) setWeekStart(nueva);
   };
 
@@ -210,16 +211,20 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
   const handleConfirmar = async () => {
     if (!vehiculoId || !fechaSel || !horaSel) {
       const partes = [];
+
       if (!vehiculoId) partes.push("un vehículo");
       if (!fechaSel || !horaSel) partes.push("un horario");
+
       setValidacionMsg(`Selecciona ${partes.join(" y ")} para continuar.`);
       return;
     }
+
     setValidacionMsg(null);
     setSubmitting(true);
     setErrorPost(null);
 
     const token = localStorage.getItem("token");
+
     const body = {
       vehicle_id: vehiculoId,
       date: fechaSel,
@@ -227,18 +232,25 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
       service_ids: servicios.map(s => String(s.id)),
     };
 
-    console.log(body);
-
     try {
       const r = await fetch("http://localhost:8080/api/booking/reservations/", {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(body),
       });
+
       const json = await r.json();
-      console.log(json);
-      if (json.error && json.error.includes("(hora Colombia) no está disponible. Los 3 cupos están ocupados durante ese período.")) {
-        throw new Error("Los servicios seleccionados alcanzan a tomar tiempo de un horario que ya está lleno. Por favor, elige otro horario o reduce la duración total de los servicios.");
+
+      if (
+        json.error &&
+        json.error.includes("(hora Colombia) no está disponible. Los 3 cupos están ocupados durante ese período.")
+      ) {
+        throw new Error(
+          "Los servicios seleccionados alcanzan a tomar tiempo de un horario que ya está lleno. Por favor, elige otro horario o reduce la duración total de los servicios."
+        );
       }
 
       if (r.status === 422) {
@@ -258,38 +270,54 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
     }
   };
 
-  const handleBackdrop = (e) => { if (e.target === e.currentTarget) onClose(); };
+  const handleBackdrop = (e) => {
+    if (e.target === e.currentTarget) onClose();
+  };
 
-  // Vehículos filtrados por tipo
-  const vehiculosFiltrados = vehiculos.filter(v => vehiculoMatchTipo(v, tipoVehiculo));
+  const vehiculosFiltrados = vehiculos.filter(v =>
+    vehiculoMatchTipo(v, tipoVehiculo)
+  );
+
   const tipoLabel = tipoVehiculo === "moto" ? "moto" : "carro";
 
-  const slotsDia = fechaSel ? (calendario?.days.find(d => d.date === fechaSel)?.slots ?? []) : [];
-  const total    = servicios.reduce((acc, s) => acc + parseFloat(s.price), 0);
-  const duracion = servicios.reduce((acc, s) => acc + s.duration, 0);
-  const listo    = vehiculoId && fechaSel && horaSel;
+  const slotsDia = fechaSel
+    ? calendario?.days.find(d => d.date === fechaSel)?.slots ?? []
+    : [];
+
+  const total = servicios.reduce(
+    (acc, s) => acc + parseFloat(s.price),
+    0
+  );
+
+  const duracion = servicios.reduce(
+    (acc, s) => acc + s.duration,
+    0
+  );
 
   return (
     <>
       <div className="mfr-backdrop" onClick={handleBackdrop}>
         <div className="mfr-box">
 
-          {/* Header */}
           <div className="mfr-header">
             <div className="mfr-header-left">
               <button className="mfr-back" onClick={onVolver} title="Volver a servicios">
                 ‹ Servicios
               </button>
+
               <h2 className="mfr-title">Crear Reservación</h2>
             </div>
-            <button className="mfr-close" onClick={onClose} aria-label="Cerrar">✕</button>
+
+            <button className="mfr-close" onClick={onClose} aria-label="Cerrar">
+              ✕
+            </button>
           </div>
 
           <div className="mfr-body">
 
-            {/* Resumen de servicios */}
             <section className="mfr-section">
               <p className="mfr-label">Servicios seleccionados</p>
+
               <div className="mfr-servicios-tabla">
                 {servicios.map(s => (
                   <div key={s.id} className="mfr-servicio-fila">
@@ -297,131 +325,190 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
                       <span className="mfr-servicio-nombre">{s.name}</span>
                       <span className="mfr-servicio-duracion">{s.duration} min</span>
                     </div>
-                    <span className="mfr-servicio-precio">{formatPrice(s.price)}</span>
+
+                    <span className="mfr-servicio-precio">
+                      {formatPrice(s.price)}
+                    </span>
                   </div>
                 ))}
+
                 <div className="mfr-servicios-total">
                   <div className="mfr-total-left">
                     <span>Total</span>
-                    <span className="mfr-total-duracion">{duracion} min</span>
+                    <span className="mfr-total-duracion">
+                      {duracion} min
+                    </span>
                   </div>
-                  <span className="mfr-total-precio">{formatPrice(total)}</span>
+
+                  <span className="mfr-total-precio">
+                    {formatPrice(total)}
+                  </span>
                 </div>
               </div>
             </section>
 
-            {/* Vehículo */}
             <section className="mfr-section">
               <label className="mfr-label" htmlFor="vehiculo">
                 Vehículo
-                <span className="mfr-tipo-badge mfr-tipo-badge--{tipoVehiculo}">
+
+                <span className={`mfr-tipo-badge mfr-tipo-badge--${tipoVehiculo}`}>
                   {tipoVehiculo === "moto" ? "🏍️ Moto" : "🚗 Carro"}
                 </span>
               </label>
-              {loadingVehiculos && <p className="mfr-hint">Cargando vehículos...</p>}
-              {errorVehiculos && <p className="mfr-error">{errorVehiculos}</p>}
 
-              {!loadingVehiculos && !errorVehiculos && vehiculosFiltrados.length === 0 && (
-                <div className="mfr-no-vehiculos">
-                  <p className="mfr-hint">No tienes {tipoLabel}s registrados.</p>
-                  <button
-                    type="button"
-                    className="mfr-btn-agregar-vehiculo"
-                    onClick={() => setModalVehiculoOpen(true)}
-                  >
-                    + Agregar {tipoLabel}
-                  </button>
-                </div>
+              {loadingVehiculos && (
+                <p className="mfr-hint">Cargando vehículos...</p>
               )}
 
-              {!loadingVehiculos && !errorVehiculos && vehiculosFiltrados.length > 0 && (
-                <select
-                  id="vehiculo"
-                  className="mfr-select"
-                  value={vehiculoId}
-                  onChange={e => setVehiculoId(e.target.value)}
-                >
-                  <option value="" disabled>Selecciona un {tipoLabel}</option>
-                  {vehiculosFiltrados.map(v => (
-                    <option key={v.id} value={v.id}>
-                      {v.placa} — {v.marca} {v.modelo}
-                    </option>
-                  ))}
-                </select>
+              {errorVehiculos && (
+                <p className="mfr-error">{errorVehiculos}</p>
               )}
-            </section>
 
-          {tieneHorarioFijo ? (
-            <section className="mfr-section">
-              <p className="mfr-label">Horario seleccionado</p>
-              <div className="mfr-fixed-schedule">
-                <strong>{formatDateLabel(timeSelected.date)}</strong>
-                <span>{timeSelected.hour}</span>
-              </div>
-            </section>
-          ) : (
-            <>
-              <section className="mfr-section">
-                <div className="mfr-cal-nav">
-                  <button className="mfr-nav-btn" onClick={irSemanaAnterior} disabled={semanaAnteriorDeshabilitada}>‹</button>
-                  <span className="mfr-label" style={{ margin: 0 }}>
-                    {calendario
-                      ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
-                      : "Cargando..."}
-                  </span>
-                  <button className="mfr-nav-btn" onClick={irSemanaSiguiente}>›</button>
-                </div>
+              {!loadingVehiculos &&
+                !errorVehiculos &&
+                vehiculosFiltrados.length === 0 && (
+                  <div className="mfr-no-vehiculos">
+                    <p className="mfr-hint">
+                      No tienes {tipoLabel}s registrados.
+                    </p>
 
-                {loadingCal && <p className="mfr-hint">Cargando disponibilidad...</p>}
-                {errorCal   && <p className="mfr-error">{errorCal}</p>}
-
-                {!loadingCal && !errorCal && calendario && (
-                  <div className="mfr-dias-grid">
-                    {calendario.days.map(dia => {
-                      const pasado        = toDateObj(dia.date) < toDateObj(hoy);
-                      const todosLlenos   = dia.slots.every(s => s.full);
-                      const deshabilitado = pasado || todosLlenos;
-                      const seleccionado  = fechaSel === dia.date;
-
-                      return (
-                        <button
-                          key={dia.date}
-                          className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
-                          disabled={deshabilitado}
-                          onClick={() => { setFechaSel(dia.date); setHoraSel(null); }}
-                        >
-                          {formatDateLabel(dia.date)}
-                        </button>
-                      );
-                    })}
+                    <button
+                      type="button"
+                      className="mfr-btn-agregar-vehiculo"
+                      onClick={() => setModalVehiculoOpen(true)}
+                    >
+                      + Agregar {tipoLabel}
+                    </button>
                   </div>
                 )}
-              </section>
 
-              {fechaSel && (
-                <section className="mfr-section">
-                  <p className="mfr-label">Hora disponible</p>
-                  <div className="mfr-horas-grid">
-                    {slotsDia.map(slot => (
-                      <button
-                        key={slot.hour}
-                        className={`mfr-hora-btn ${horaSel === slot.hour ? "sel" : ""} ${slot.full || isSlotInThePast(fechaSel, slot.hour) ? "dis" : ""}`}
-                        disabled={slot.full || isSlotInThePast(fechaSel, slot.hour)}
-                        onClick={() => setHoraSel(slot.hour)}
-                      >
-                        {slot.hour}
-                      </button>
+              {!loadingVehiculos &&
+                !errorVehiculos &&
+                vehiculosFiltrados.length > 0 && (
+                  <select
+                    id="vehiculo"
+                    className="mfr-select"
+                    value={vehiculoId}
+                    onChange={e => setVehiculoId(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Selecciona un {tipoLabel}
+                    </option>
+
+                    {vehiculosFiltrados.map(v => (
+                      <option key={v.id} value={v.id}>
+                        {v.tipo === 2 ? "🏍️" : "🚗"} {v.placa} — {v.marca} {v.modelo}
+                      </option>
                     ))}
-                  </div>
-                </section>
-              )}
-            </>
-          )}
+                  </select>
+                )}
+            </section>
 
-            {errorPost && <p className="mfr-error">{errorPost}</p>}
+            {tieneHorarioFijo ? (
+              <section className="mfr-section">
+                <p className="mfr-label">Horario seleccionado</p>
+
+                <div className="mfr-fixed-schedule">
+                  <strong>{formatDateLabel(timeSelected.date)}</strong>
+                  <span>{timeSelected.hour}</span>
+                </div>
+              </section>
+            ) : (
+              <>
+                <section className="mfr-section">
+                  <div className="mfr-cal-nav">
+                    <button
+                      className="mfr-nav-btn"
+                      onClick={irSemanaAnterior}
+                      disabled={semanaAnteriorDeshabilitada}
+                    >
+                      ‹
+                    </button>
+
+                    <span className="mfr-label" style={{ margin: 0 }}>
+                      {calendario
+                        ? `${formatDateLabel(calendario.week_start)} — ${formatDateLabel(calendario.week_end)}`
+                        : "Cargando..."}
+                    </span>
+
+                    <button
+                      className="mfr-nav-btn"
+                      onClick={irSemanaSiguiente}
+                    >
+                      ›
+                    </button>
+                  </div>
+
+                  {loadingCal && (
+                    <p className="mfr-hint">Cargando disponibilidad...</p>
+                  )}
+
+                  {errorCal && (
+                    <p className="mfr-error">{errorCal}</p>
+                  )}
+
+                  {!loadingCal && !errorCal && calendario && (
+                    <div className="mfr-dias-grid">
+                      {calendario.days.map(dia => {
+                        const pasado = toDateObj(dia.date) < toDateObj(hoy);
+                        const todosLlenos = dia.slots.every(s => s.full);
+
+                        const deshabilitado = pasado || todosLlenos;
+                        const seleccionado = fechaSel === dia.date;
+
+                        return (
+                          <button
+                            key={dia.date}
+                            className={`mfr-dia-btn ${seleccionado ? "sel" : ""} ${deshabilitado ? "dis" : ""}`}
+                            disabled={deshabilitado}
+                            onClick={() => {
+                              setFechaSel(dia.date);
+                              setHoraSel(null);
+                            }}
+                          >
+                            {formatDateLabel(dia.date)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+
+                {fechaSel && (
+                  <section className="mfr-section">
+                    <p className="mfr-label">Hora disponible</p>
+
+                    <div className="mfr-horas-grid">
+                      {slotsDia.map(slot => (
+                        <button
+                          key={slot.hour}
+                          className={`mfr-hora-btn ${
+                            horaSel === slot.hour ? "sel" : ""
+                          } ${
+                            slot.full || isSlotInThePast(fechaSel, slot.hour)
+                              ? "dis"
+                              : ""
+                          }`}
+                          disabled={
+                            slot.full ||
+                            isSlotInThePast(fechaSel, slot.hour)
+                          }
+                          onClick={() => setHoraSel(slot.hour)}
+                        >
+                          {slot.hour}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
+
+            {errorPost && (
+              <p className="mfr-error">{errorPost}</p>
+            )}
           </div>
 
-          {/* Footer */}
           <div className="mfr-footer">
             {validacionMsg && (
               <div className="mfr-validacion-alert">
@@ -429,19 +516,20 @@ export default function ModalFormReserva({ servicios, tipoVehiculo = "carro", on
                 {validacionMsg}
               </div>
             )}
+
             <button
               className="mfr-btn-confirmar enabled"
               disabled={submitting}
               onClick={handleConfirmar}
             >
-              {submitting ? "Confirmando..." : "Confirmar Reserva"}
+              {submitting
+                ? "Confirmando..."
+                : "Confirmar Reserva"}
             </button>
           </div>
-
         </div>
       </div>
 
-      {/* Modal agregar vehículo — encima del modal de reserva */}
       <ModalAgregarVehiculo
         isOpen={modalVehiculoOpen}
         onClose={() => setModalVehiculoOpen(false)}

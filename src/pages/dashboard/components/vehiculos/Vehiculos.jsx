@@ -2,15 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import "./Vehiculos.css";
 import ModalAgregarVehiculo from "./ModalAgregarVehiculo";
 
-const MARCAS_MOTOS = new Set([
-  "Honda", "Yamaha", "Suzuki", "Kawasaki", "AKT",
-  "TVS", "Hero", "Bajaj", "Royal Enfield", "KTM",
-  "Ducati", "BMW", "Harley-Davidson", "Benelli", "CF Moto",
-  "Bera", "Auteco", "UM", "Italika", "Piaggio",
-]);
-
-function getVehiculoIcon(marca) {
-  return MARCAS_MOTOS.has(marca) ? "🏍️" : "🚗";
+function getVehiculoIcon(tipo) {
+  return tipo === 2 ? "🏍️" : "🚗";
 }
 
 const STATUS_FILTERS = ["Todos", "pendiente", "completado", "cancelado"];
@@ -290,7 +283,7 @@ function VehiculosTab() {
         <div className="vehiculos-cards-grid">
           {filtered.map(v => (
             <div key={v.id} className="vehiculo-card">
-              <div className="vehiculo-card-icon">{getVehiculoIcon(v.marca)}</div>
+              <div className="vehiculo-card-icon">{getVehiculoIcon(v.tipo)}</div>
               <div className="vehiculo-card-info">
                 <span className="vehiculo-placa-big">{v.placa}</span>
                 <span className="vehiculo-modelo-big">{v.marca} · {v.modelo}</span>
