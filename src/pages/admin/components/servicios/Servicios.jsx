@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { uploadImageToCloudinary } from '../../../../services/cloudinaryService'
+import ImageUpload from './components/ImageUpload'
 import './Servicios.css'
 
 const formularioVacio = { name: "", price: "", description: "", duration: "", is_active: true, category_id: "", url: "" }
@@ -15,6 +17,7 @@ export default function Servicios() {
   const [editandoCatId, setEditandoCatId] = useState(null)
   const [error, setError] = useState("")
   const [errorCat, setErrorCat] = useState("")
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   const token = localStorage.getItem("token")
   const headers = {
@@ -46,6 +49,25 @@ export default function Servicios() {
     cargarServicios()
     cargarCategorias()
   }, [])
+
+  const handleImageUpload = async (file) => {
+    setUploadingImage(true);
+    try {
+      const imageUrl = await uploadImageToCloudinary(file);
+      setFormulario(prev => ({ ...prev, url: imageUrl }));
+      setError("");
+      return imageUrl;
+    } catch (err) {
+      setError("Error al subir la imagen: " + err.message);
+      throw err;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormulario(prev => ({ ...prev, url: "" }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -89,6 +111,11 @@ export default function Servicios() {
 
     if (formulario.url && formulario.url.length > 500) {
       setError("La URL de imagen no puede superar 500 caracteres.")
+      return
+    }
+
+    if (uploadingImage) {
+      setError("Por favor espera a que la imagen termine de subirse.")
       return
     }
 
@@ -137,11 +164,14 @@ export default function Servicios() {
   }
 
   const handleEliminar = async (id) => {
-    try {
-      await fetch(`http://localhost:8080/api/booking/services/${id}`, { method: "DELETE", headers })
-      await cargarServicios()
-    } catch (err) {
-      console.error("Error eliminando servicio:", err)
+    if (window.confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+      try {
+        await fetch(`http://localhost:8080/api/booking/services/${id}`, { method: "DELETE", headers })
+        await cargarServicios()
+      } catch (err) {
+        console.error("Error eliminando servicio:", err)
+        setError("Error al eliminar el servicio.")
+      }
     }
   }
 
@@ -151,6 +181,7 @@ export default function Servicios() {
       await cargarServicios()
     } catch (err) {
       console.error("Error activando servicio:", err)
+      setError("Error al activar el servicio.")
     }
   }
 
@@ -160,6 +191,7 @@ export default function Servicios() {
       await cargarServicios()
     } catch (err) {
       console.error("Error desactivando servicio:", err)
+      setError("Error al desactivar el servicio.")
     }
   }
 
@@ -210,11 +242,14 @@ export default function Servicios() {
   }
 
   const handleEliminarCat = async (id) => {
-    try {
-      await fetch(`http://localhost:8080/api/booking/categories/${id}`, { method: "DELETE", headers })
-      await cargarCategorias()
-    } catch (err) {
-      console.error("Error eliminando categoría:", err)
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+      try {
+        await fetch(`http://localhost:8080/api/booking/categories/${id}`, { method: "DELETE", headers })
+        await cargarCategorias()
+      } catch (err) {
+        console.error("Error eliminando categoría:", err)
+        setErrorCat("Error al eliminar la categoría.")
+      }
     }
   }
 
@@ -242,22 +277,67 @@ export default function Servicios() {
         <div className="servicios_formulario">
           <h2>{editandoId ? 'Editar Servicio' : 'Nuevo Servicio'}</h2>
           <div className="formulario_grid">
-            <input name="name" placeholder="Nombre (máx. 150 caracteres)" value={formulario.name} onChange={handleChange} />
-            <input name="price" placeholder="Precio (máx. 99,999,999.99)" type="number" value={formulario.price} onChange={handleChange} />
-            <input name="duration" placeholder="Duración en minutos (máx. 1440)" type="number" value={formulario.duration} onChange={handleChange} />
-            <input name="description" placeholder="Descripción (máx. 500 caracteres)" value={formulario.description} onChange={handleChange} />
-            <select name="category_id" value={formulario.category_id} onChange={handleChange} className="formulario_select">
+            <input 
+              name="name" 
+              placeholder="Nombre (máx. 150 caracteres)" 
+              value={formulario.name} 
+              onChange={handleChange} 
+            />
+            <input 
+              name="price" 
+              placeholder="Precio (máx. 99,999,999.99)" 
+              type="number" 
+              step="0.01"
+              value={formulario.price} 
+              onChange={handleChange} 
+            />
+            <input 
+              name="duration" 
+              placeholder="Duración en minutos (máx. 1440)" 
+              type="number" 
+              value={formulario.duration} 
+              onChange={handleChange} 
+            />
+            <input 
+              name="description" 
+              placeholder="Descripción (máx. 500 caracteres)" 
+              value={formulario.description} 
+              onChange={handleChange} 
+            />
+            <select 
+              name="category_id" 
+              value={formulario.category_id} 
+              onChange={handleChange} 
+              className="formulario_select"
+            >
               <option value="">Seleccionar categoría</option>
               {categorias.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-            <input name="url" placeholder="URL de imagen (opcional)" value={formulario.url} onChange={handleChange} />
+            <div className="formulario_image_field">
+              <label style={{ marginBottom: '8px', display: 'block', fontWeight: '600' }}>
+                Imagen del servicio:
+              </label>
+              <ImageUpload 
+                onImageUpload={handleImageUpload}
+                currentImageUrl={formulario.url}
+                onRemoveImage={handleRemoveImage}
+              />
+            </div>
           </div>
           {error && <p className="form_error">{error}</p>}
           <div className="formulario_botones">
-            <button className="btn_guardar" onClick={handleGuardar}>Guardar</button>
-            <button className="btn_cancelar" onClick={handleCancelar}>Cancelar</button>
+            <button 
+              className="btn_guardar" 
+              onClick={handleGuardar} 
+              disabled={uploadingImage}
+            >
+              {uploadingImage ? '📤 Subiendo imagen...' : '💾 Guardar'}
+            </button>
+            <button className="btn_cancelar" onClick={handleCancelar}>
+              ❌ Cancelar
+            </button>
           </div>
         </div>
       )}
@@ -270,6 +350,7 @@ export default function Servicios() {
             <th>Categoría</th>
             <th>Duración</th>
             <th>Precio</th>
+            <th>Imagen</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -281,22 +362,58 @@ export default function Servicios() {
               <td>{s.description}</td>
               <td>{s.category_name ?? '—'}</td>
               <td>{s.duration} min</td>
-              <td>${s.price}</td>
+              <td>${parseFloat(s.price).toFixed(2)}</td>
+              <td>
+                {s.image_url ? (
+                  <img 
+                    src={s.image_url} 
+                    alt={s.name} 
+                    style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }}
+                  />
+                ) : (
+                  <span style={{ color: '#999' }}>Sin imagen</span>
+                )}
+               </td>
               <td>
                 <span className={`badge ${s.is_active ? 'activo' : 'inactivo'}`}>
                   {s.is_active ? 'Activo' : 'Inactivo'}
                 </span>
-              </td>
+               </td>
               <td className="acciones">
-                <button className="btn_icono btn_icono_editar" title="Editar" onClick={() => handleEditar(s)}>✏️</button>
-                <button className="btn_icono btn_icono_eliminar" title="Eliminar" onClick={() => handleEliminar(s.id)}>🗑</button>
+                <button 
+                  className="btn_icono btn_icono_editar" 
+                  title="Editar" 
+                  onClick={() => handleEditar(s)}
+                >
+                  ✏️
+                </button>
+                <button 
+                  className="btn_icono btn_icono_eliminar" 
+                  title="Eliminar" 
+                  onClick={() => handleEliminar(s.id)}
+                >
+                  🗑
+                </button>
                 {s.is_active ? (
-                  <button className="btn_icono btn_icono_desactivar" title="Desactivar" onClick={() => handleDesactivar(s.id)}>⏸</button>
+                  <button 
+                    className="btn_icono btn_icono_desactivar" 
+                    title="Desactivar" 
+                    onClick={() => handleDesactivar(s.id)}
+                  >
+                    ⏸
+                  </button>
                 ) : (
-                  <button className="btn_icono btn_icono_activar" title="Activar" onClick={() => handleActivar(s.id)}>▶️</button>
+                  <button 
+                    className="btn_icono btn_icono_activar" 
+                    title="Activar" 
+                    onClick={() => handleActivar(s.id)}
+                    style={{ backgroundColor: '#d1fae5' }}
+                  >
+                    ▶️
+                  </button>
                 )}
-              </td>
-            </tr>
+               </td>
+             </tr>
           ))}
         </tbody>
       </table>
@@ -306,17 +423,31 @@ export default function Servicios() {
           <div className="modal_contenido" onClick={e => e.stopPropagation()}>
             <div className="modal_header">
               <h2>Gestionar Categorías</h2>
-              <button className="modal_cerrar" onClick={() => { setMostrarModalCat(false); handleCancelarCat() }}>✕</button>
+              <button className="modal_cerrar" onClick={() => { setMostrarModalCat(false); handleCancelarCat() }}>
+                ✕
+              </button>
             </div>
             <div className="modal_formulario">
-              <input name="name" placeholder="Nombre (máx. 100 caracteres)" value={formularioCat.name} onChange={handleChangeCat} />
-              <input name="description" placeholder="Descripción" value={formularioCat.description} onChange={handleChangeCat} />
+              <input 
+                name="name" 
+                placeholder="Nombre (máx. 100 caracteres)" 
+                value={formularioCat.name} 
+                onChange={handleChangeCat} 
+              />
+              <input 
+                name="description" 
+                placeholder="Descripción" 
+                value={formularioCat.description} 
+                onChange={handleChangeCat} 
+              />
               <div className="formulario_botones">
                 <button className="btn_guardar" onClick={handleGuardarCat}>
-                  {editandoCatId ? "Actualizar" : "Agregar"}
+                  {editandoCatId ? "🔄 Actualizar" : "➕ Agregar"}
                 </button>
                 {editandoCatId && (
-                  <button className="btn_cancelar" onClick={handleCancelarCat}>Cancelar</button>
+                  <button className="btn_cancelar" onClick={handleCancelarCat}>
+                    ❌ Cancelar
+                  </button>
                 )}
               </div>
             </div>
@@ -335,8 +466,20 @@ export default function Servicios() {
                     <td>{cat.name}</td>
                     <td>{cat.description || "—"}</td>
                     <td className="acciones">
-                      <button className="btn_icono btn_icono_editar" title="Editar" onClick={() => handleEditarCat(cat)}>✏️</button>
-                      <button className="btn_icono btn_icono_eliminar" title="Eliminar" onClick={() => handleEliminarCat(cat.id)}>🗑</button>
+                      <button 
+                        className="btn_icono btn_icono_editar" 
+                        title="Editar" 
+                        onClick={() => handleEditarCat(cat)}
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        className="btn_icono btn_icono_eliminar" 
+                        title="Eliminar" 
+                        onClick={() => handleEliminarCat(cat.id)}
+                      >
+                        🗑
+                      </button>
                     </td>
                   </tr>
                 ))}
