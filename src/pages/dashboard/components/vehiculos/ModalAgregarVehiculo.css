@@ -63,7 +63,7 @@
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px 24px;
   overflow-y: auto;
   flex: 1;
 }
@@ -81,10 +81,6 @@
 body:not(.dark) .modal-error {
   background-color: #fee2e2;
   color: #b91c1c;
-}
-
-.form-group {
-  margin-bottom: 20px;
 }
 
 .form-group label {
@@ -428,12 +424,9 @@ body:not(.dark) .modal-footer {
   }
 
   .modal-body {
-    padding: 20px;
+    padding: 10px;
   }
 
-  .form-group {
-    margin-bottom: 16px;
-  }
 
   .form-group label {
     font-size: 13px;

@@ -1,6 +1,26 @@
 import React, { useState, useEffect, useMemo } from "react";
 import "./Vehiculos.css";
 import ModalAgregarVehiculo from "./ModalAgregarVehiculo";
+import ModalServicios from "../servicios/ModalServicios";
+import ModalFormReserva from "../formreserva/ModalFormReserva";
+
+function getVehiculoIcon(tipo) {
+  // Si viene número
+  if (tipo === 2) return "🏍️";
+  if (tipo === 1) return "🚗";
+
+  // Si viene texto
+  const tipoLower = String(tipo).toLowerCase();
+
+  if (
+    tipoLower.includes("moto") ||
+    tipoLower.includes("motocicleta")
+  ) {
+    return "🏍️";
+  }
+
+  return "🚗";
+}
 
 const STATUS_FILTERS = ["Todos", "pendiente", "completado", "cancelado"];
 const PAGE_SIZE = 5;
@@ -44,6 +64,11 @@ function ReservasTab() {
     type: "cancel",
     reservationId: null,
   });
+
+  // Estados para el modal de agendar
+  const [modal, setModal] = useState(null);
+  const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
+  const [timeSelected, setTimeSelected] = useState(null);
 
   const getStatusLabel = (status = "") => {
     const s = status.toLowerCase();
@@ -125,6 +150,28 @@ function ReservasTab() {
     }
   };
 
+  // Handlers para el modal de agendar
+  const handleOpenServices = (selectedTime = null) => {
+    setTimeSelected(selectedTime);
+    setModal("servicios");
+  };
+
+  const handleAgendar = (selArray, selectedTime = null) => {
+    setServiciosSeleccionados(selArray);
+    if (selectedTime) {
+      setTimeSelected(selectedTime);
+    }
+    setModal("reserva");
+  };
+
+  const handleCerrarTodo = () => {
+    setModal(null);
+    setServiciosSeleccionados([]);
+    setTimeSelected(null);
+    // Refrescar reservas al cerrar
+    fetchReservas();
+  };
+
   const total = reservas.length;
   const pendientes = reservas.filter(r => r.status?.toLowerCase() === "pendiente").length;
   const completados = reservas.filter(r => ["completado", "completada"].includes(r.status?.toLowerCase())).length;
@@ -157,19 +204,26 @@ function ReservasTab() {
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const goTo = p => setPage(Math.max(1, Math.min(p, totalPages)));
-
+  const handleSearch = e => { setSearch(e.target.value); setPage(1); };
+  
   if (loading) return <p className="vehiculos-hint">Cargando reservas...</p>;
   if (error) return <p className="vehiculos-error">{error}</p>;
 
   return (
     <>
-      <input
-        className="vehiculos-search"
-        type="text"
-        placeholder="Buscar reserva..."
-        value={search}
-        onChange={e => { setSearch(e.target.value); setPage(1); }}
-      />
+      <div className="vehiculos-tab-header">
+        <input
+          className="vehiculos-search"
+          type="text"
+          placeholder="Buscar por placa"
+          value={search}
+          onChange={handleSearch}
+          style={{ marginBottom: 0 }}
+        />
+        <button className="btn-agendar-reserva" onClick={() => handleOpenServices(null)}>
+          + Agendar reserva
+        </button>
+      </div>
 
       <div className="vehiculos-stats">
         <div className="stat-card">
@@ -352,6 +406,28 @@ function ReservasTab() {
           </div>
         </div>
       )}
+
+      {/* Modales de agendar reserva */}
+      {modal === "servicios" && (
+        <ModalServicios
+          onClose={handleCerrarTodo}
+          onAgendar={handleAgendar}
+          timeSelected={timeSelected}
+        />
+      )}
+
+      {modal === "reserva" && (
+        <ModalFormReserva
+          servicios={serviciosSeleccionados}
+          timeSelected={timeSelected}
+          onClose={handleCerrarTodo}
+          onVolver={() => setModal("servicios")}
+          onConfirmada={(reserva) => {
+            handleCerrarTodo();
+            console.log("Reserva creada:", reserva);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -404,9 +480,9 @@ function VehiculosTab() {
         <input
           className="vehiculos-search"
           type="text"
-          placeholder="Buscar vehículo..."
+          placeholder="Buscar vehículo por modelo"
           value={search}
-          onChange={e => setSearch(v.target.value)}
+          onChange={e => setSearch(e.target.value)}
           style={{ marginBottom: 0 }}
         />
         <button className="btn-agregar-vehiculo" onClick={() => setModalOpen(true)}>
@@ -429,7 +505,7 @@ function VehiculosTab() {
         <div className="vehiculos-cards-grid">
           {filtered.map(v => (
             <div key={v.id} className="vehiculo-card">
-              <div className="vehiculo-card-icon">🚗</div>
+              <div className="vehiculo-card-icon">{getVehiculoIcon(v.tipo)}</div>
               <div className="vehiculo-card-info">
                 <span className="vehiculo-placa-big">{v.placa}</span>
                 <span className="vehiculo-modelo-big">{v.marca} · {v.modelo}</span>
