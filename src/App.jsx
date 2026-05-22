@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Home from './pages/home/Home'
 import Dashboard from './pages/dashboard/Dashboard'
 import Login from './pages/login/Login'
@@ -11,19 +11,34 @@ import FeedbackPage from "./pages/FeedbackPage/FeedbackPage";
 
 import { BACKEND_URL as API_BASE } from './url';
 export default function App() {
-  
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      fetch(`${API_BASE}/auth/guest`, { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-          const token = data.token?.token || data.token;
-          if (token) localStorage.setItem("token", token);
-        })
-        .catch(err => console.error("Error generando token guest:", err));
-    }
+    const initializeToken = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          const res = await fetch(`${API_BASE}/auth/guest`, { method: "POST" });
+          const data = await res.json();
+          const newToken = data.token?.token || data.token;
+          if (newToken) {
+            localStorage.setItem("token", newToken);
+          }
+        }
+      } catch (err) {
+        console.error("Error generando token guest:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeToken();
   }, []);
+
+  // No renderizar nada mientras se obtiene el token
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
 
   return (
     <BrowserRouter>
