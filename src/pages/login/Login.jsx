@@ -3,6 +3,7 @@ import Navbar from "../../components/navbar/Navbar";
 import "./Login.css";
 import googleLogo from "../../assets/google_icon.svg";
 import { useState } from "react";
+import {BACKEND_URL} from "../../url";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ function Login() {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/google/url");
+      const response = await fetch(`${BACKEND_URL}/auth/google/url`);
 
       if (!response.ok) {
         throw new Error("Error al obtener la URL de Google");
